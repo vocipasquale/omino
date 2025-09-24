@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<dimen name="spacing_xs">4dp</dimen>
+	<dimen name="spacing_s">8dp</dimen>
+	<dimen name="spacing_m">12dp</dimen>
+	<dimen name="spacing_l">16dp</dimen>
+	<dimen name="spacing_xl">24dp</dimen>
+	<dimen name="spacing_2xl">32dp</dimen>
+	<!-- Altezza fissa pulsanti arcade (configurabile) -->
+	<dimen name="arcade_button_height">40dp</dimen>
+	<dimen name="arcade_button_width">160dp</dimen>
+</resources>
+
+

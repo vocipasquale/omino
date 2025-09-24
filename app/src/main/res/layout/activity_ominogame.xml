@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:gravity="center"
+              android:background="@color/arcade_bg"
+              android:padding="24dp">
+
+    <!-- Qui puoi inserire la tua GameView o altri componenti sopra la barra dei comandi -->
+
+    <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+
+
+    <!-- Barra dei comandi a croce -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/control_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp">
+
+        <!-- Pulsante centrale (senza label) -->
+        <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_center"
+                android:layout_width="@dimen/arcade_button_size"
+                android:layout_height="@dimen/arcade_button_size"
+                android:text=""
+                style="@style/ButtonArcade"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+        <!-- Pulsante su -->
+        <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_up"
+                android:layout_width="@dimen/arcade_button_size"
+                android:layout_height="@dimen/arcade_button_size"
+                android:text="↑"
+                style="@style/ButtonArcade"
+                app:layout_constraintBottom_toTopOf="@id/button_center"
+                app:layout_constraintStart_toStartOf="@id/button_center"
+                app:layout_constraintEnd_toEndOf="@id/button_center" />
+
+        <!-- Pulsante giù -->
+        <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_down"
+                android:layout_width="@dimen/arcade_button_size"
+                android:layout_height="@dimen/arcade_button_size"
+                android:text="↓"
+                style="@style/ButtonArcade"
+                app:layout_constraintTop_toBottomOf="@id/button_center"
+                app:layout_constraintStart_toStartOf="@id/button_center"
+                app:layout_constraintEnd_toEndOf="@id/button_center" />
+
+        <!-- Pulsante sinistra -->
+        <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_left"
+                android:layout_width="@dimen/arcade_button_size"
+                android:layout_height="@dimen/arcade_button_size"
+                android:text="←"
+                style="@style/ButtonArcade"
+                app:layout_constraintEnd_toStartOf="@id/button_center"
+                app:layout_constraintTop_toTopOf="@id/button_center"
+                app:layout_constraintBottom_toBottomOf="@id/button_center" />
+
+        <!-- Pulsante destra -->
+        <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_right"
+                android:layout_width="@dimen/arcade_button_size"
+                android:layout_height="@dimen/arcade_button_size"
+                android:text="→"
+                style="@style/ButtonArcade"
+                app:layout_constraintStart_toEndOf="@id/button_center"
+                app:layout_constraintTop_toTopOf="@id/button_center"
+                app:layout_constraintBottom_toBottomOf="@id/button_center" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>

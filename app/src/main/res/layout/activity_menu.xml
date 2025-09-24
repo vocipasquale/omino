@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  xmlns:app="http://schemas.android.com/apk/res-auto"
+			  android:layout_width="match_parent"
+			  android:layout_height="match_parent"
+			  android:orientation="vertical"
+			  android:gravity="center"
+			  android:background="@color/arcade_bg"
+			  android:padding="24dp">
+
+
+	<com.google.android.material.button.MaterialButton
+			android:id="@+id/button_chiudi_menu"
+			style="@style/ButtonArcade"
+			android:layout_width="@dimen/arcade_button_width"
+			android:layout_height="@dimen/arcade_button_height"
+			android:text="@string/indietro"/>
+
+</LinearLayout>
