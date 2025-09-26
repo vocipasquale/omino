@@ -9,13 +9,15 @@ public class SceneManager {
         if (current != null) current.onEnter();
     }
 
-    public static void update() {
-        if (current != null) current.update();
+    public static void update(float deltaTime) {
+        if (current != null) current.update(deltaTime);
     }
 
     public static void render() {
         if (current != null) current.render();
     }
+
+    public static Scene getCurrent() {
+        return current;
+    }
 }
-
-

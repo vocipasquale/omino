@@ -10,11 +10,12 @@ project("omino")
 add_library(omino SHARED
     main.cpp
     AndroidOut.cpp
-    jni_bridge.cpp
+   # jni_bridge.cpp
     Renderer.cpp
     Shader.cpp
     TextureAsset.cpp
-    Utility.cpp )
+    Utility.cpp
+    omino_native.cpp)
 
 # Searches for a package provided by the game activity dependency
 find_package(game-activity REQUIRED CONFIG)

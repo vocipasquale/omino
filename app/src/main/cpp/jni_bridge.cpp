@@ -23,10 +23,10 @@ Java_com_game_omino_render_GameRenderer_nativeUpdate(JNIEnv* /*env*/, jclass /*c
     // no-op
 }
 
-JNIEXPORT void JNICALL
-Java_com_game_omino_render_GameRenderer_nativeRender(JNIEnv* /*env*/, jclass /*clazz*/) {
+//JNIEXPORT void JNICALL
+//Java_com_game_omino_render_GameRenderer_nativeRender(JNIEnv* /*env*/, jclass /*clazz*/) {
     // no-op
-}
+//}
 
 JNIEXPORT void JNICALL
 Java_com_game_omino_input_TouchInput_nativeTouch(JNIEnv* /*env*/, jclass /*clazz*/, jfloat /*x*/, jfloat /*y*/, jint /*action*/) {

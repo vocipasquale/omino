@@ -9,6 +9,7 @@
 	<!-- Altezza fissa pulsanti arcade (configurabile) -->
 	<dimen name="arcade_button_height">40dp</dimen>
 	<dimen name="arcade_button_width">160dp</dimen>
+	<dimen name="arcade_button_ctrl_width">60dp</dimen>
 </resources>
 
 

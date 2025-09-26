@@ -36,14 +36,24 @@ public class GameLoop implements Runnable {
         while (running) {
             long now = System.currentTimeMillis();
             long elapsed = now - last;
+
             if (elapsed < FRAME_TIME_MS) {
                 try { Thread.sleep(FRAME_TIME_MS - elapsed); } catch (InterruptedException ignored) {}
+                continue;
             }
-            last = System.currentTimeMillis();
 
+            last = now;
+
+            float deltaTime = elapsed / 1000f;
+
+            // aggiorna logica
+            GameWorld.getInstance().update(deltaTime);
+
+            // disegna
             surfaceView.requestRender();
         }
     }
+
 }
 
 

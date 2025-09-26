@@ -2,14 +2,20 @@ package com.game.omino.render;
 
 import android.content.res.AssetManager;
 import android.opengl.GLSurfaceView;
-
+import com.game.omino.engine.GameWorld;
+import com.game.omino.entities.Omino;
+import com.game.omino.scene.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.microedition.khronos.opengles.GL10;
+import javax.microedition.khronos.egl.EGLConfig;
 
 public class GameRenderer implements GLSurfaceView.Renderer {
 
     static {
         System.loadLibrary("omino");
     }
+
+    private Scene currentScene;
 
     private final AssetManager assetManager;
     private final AtomicBoolean initialized = new AtomicBoolean(false);
@@ -19,29 +25,49 @@ public class GameRenderer implements GLSurfaceView.Renderer {
     }
 
     @Override
-    public void onSurfaceCreated(javax.microedition.khronos.opengles.GL10 gl, javax.microedition.khronos.egl.EGLConfig config) {
+    public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         if (!initialized.get()) {
             nativeInit(assetManager);
             initialized.set(true);
+
+            // scena iniziale
+            currentScene = new PlayScene();
+            SceneManager.setScene(currentScene);
         }
     }
 
     @Override
-    public void onSurfaceChanged(javax.microedition.khronos.opengles.GL10 gl, int width, int height) {
+    public void onSurfaceChanged(GL10 gl, int width, int height) {
         nativeResize(width, height);
     }
 
     @Override
-    public void onDrawFrame(javax.microedition.khronos.opengles.GL10 gl) {
-        nativeUpdate();
+    public void onDrawFrame(GL10 gl) {
+        float deltaTime = 1f / 60f; // fisso per ora
+
+        // logica e rendering passano dal SceneManager
+        //SceneManager.update(deltaTime);
+        //SceneManager.render();
+
+        // Passaggio dati a C++
+        Omino o = GameWorld.getInstance().getOmino();
+        nativeSetOminoPosition(o.x, o.y);
+        nativeSetMattonePositions(GameWorld.getInstance().getMattonePositionsFlat());
+        nativeSetScalaPositions(GameWorld.getInstance().getScalaPositionsFlat());
+
+        // render nativo OpenGL
         nativeRender();
     }
 
     // JNI stubs
     private static native void nativeInit(AssetManager assetManager);
     private static native void nativeResize(int width, int height);
-    private static native void nativeUpdate();
     private static native void nativeRender();
+
+    // JNI helpers da implementare in C++:
+    private static native void nativeSetOminoPosition(float x, float y);
+    private static native void nativeSetMattonePositions(float[] positions);
+    private static native void nativeSetScalaPositions(float[] positions);
 }
 
 
