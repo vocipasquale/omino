@@ -9,7 +9,7 @@ public class PlayScene implements Scene {
 
     public PlayScene() {
         world = GameWorld.getInstance();
-        world.loadLevel(new LevelBase());
+        //world.loadLevel(new LevelBase());
     }
 
     @Override

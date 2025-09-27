@@ -4,14 +4,15 @@ plugins {
 
 android {
     namespace = "com.game.omino"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.game.omino"
         minSdk = 30
-        targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        //noinspection EditedTargetSdkVersion
+        targetSdk = 35
+        versionCode = 5
+        versionName = "5.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -23,8 +24,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     buildFeatures {
         prefab = true

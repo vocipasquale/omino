@@ -2,8 +2,10 @@ package com.game.omino.app;
 
 import android.os.Bundle;
 
-import android.util.DisplayMetrics;
-import android.util.Log;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.MotionEvent;
+import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -11,40 +13,108 @@ import com.game.omino.R;
 import com.game.omino.engine.GameWorld;
 import com.game.omino.render.GameSurfaceView;
 
-import static com.game.omino.utils.Constants.TILE_SIZE;
+import static com.game.omino.utils.Constants.REPEAT_DELAY_MS;
+import static com.game.omino.utils.Constants.STEP;
 
 public class OminoGameActivity extends AppCompatActivity {
 
 	private GameSurfaceView gameView;
 
+	// Handler a livello di classe (main thread)
+	private final Handler handler = new Handler(Looper.getMainLooper());
+
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-
-		// Usa il layout XML aggiornato
 		setContentView(R.layout.activity_ominogame);
 
-		// Trova GameSurfaceView dal layout
 		gameView = findViewById(R.id.game_surface);
 
-		// Imposta listener per i pulsanti della barra dei comandi
-		findViewById(R.id.button_up).setOnClickListener(v ->
-				GameWorld.getInstance().getOmino().y -= TILE_SIZE // Y decresce verso l'alto
+		// usa makeMoveListener passando un Runnable (qui senza lambda per compatibilità)
+		findViewById(R.id.button_up).setOnTouchListener(
+				makeMoveListener(new Runnable() {
+					@Override
+					public void run() {
+						GameWorld.getInstance().getOmino().y-=STEP;
+					}
+				})
 		);
 
-		findViewById(R.id.button_down).setOnClickListener(v ->
-				GameWorld.getInstance().getOmino().y += TILE_SIZE // Y aumenta verso il basso
+		findViewById(R.id.button_down).setOnTouchListener(
+				makeMoveListener(new Runnable() {
+					@Override
+					public void run() {
+						GameWorld.getInstance().getOmino().y+=STEP;
+					}
+				})
 		);
 
-		findViewById(R.id.button_left).setOnClickListener(v ->
-				GameWorld.getInstance().getOmino().x -= TILE_SIZE
+		findViewById(R.id.button_left).setOnTouchListener(
+				makeMoveListener(new Runnable() {
+					@Override
+					public void run() {
+						GameWorld.getInstance().getOmino().x-=STEP;
+					}
+				})
 		);
 
-		findViewById(R.id.button_right).setOnClickListener(v ->
-				GameWorld.getInstance().getOmino().x += TILE_SIZE
+		findViewById(R.id.button_right).setOnTouchListener(
+				makeMoveListener(new Runnable() {
+					@Override
+					public void run() {
+						GameWorld.getInstance().getOmino().x+=STEP;
+					}
+				})
 		);
 	}
+
+	/**
+	 * Crea e ritorna un OnTouchListener che esegue moveAction immediatamente su ACTION_DOWN
+	 * e lo ripete ogni REPEAT_DELAY_MS finché non arriva ACTION_UP / ACTION_CANCEL.
+	 */
+	private View.OnTouchListener makeMoveListener(final Runnable moveAction) {
+		return new View.OnTouchListener() {
+			// Runnable di ripetizione legato all'istanza di questo listener
+			private Runnable repeatRunnable;
+
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				switch (event.getAction()) {
+					case MotionEvent.ACTION_DOWN:
+						// esegui subito lo spostamento
+						moveAction.run();
+
+						// crea il runnable che si ripeterà ad intervalli
+						repeatRunnable = new Runnable() {
+							@Override
+							public void run() {
+								moveAction.run();
+								handler.postDelayed(this, REPEAT_DELAY_MS);
+							}
+						};
+
+						// programma la prima ripetizione
+						handler.postDelayed(repeatRunnable, REPEAT_DELAY_MS);
+
+						// feedback visivo
+						v.setPressed(true);
+						return true;
+
+					case MotionEvent.ACTION_UP:
+					case MotionEvent.ACTION_CANCEL:
+						// ferma solo il runnable associato a questo listener
+						if (repeatRunnable != null) {
+							handler.removeCallbacks(repeatRunnable);
+							repeatRunnable = null;
+						}
+						v.setPressed(false);
+						return true;
+				}
+				return false;
+			}
+		};
+	}
+
 
 	@Override
 	protected void onResume() {
