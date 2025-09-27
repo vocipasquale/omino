@@ -10,15 +10,6 @@ public class Omino extends Entity {
         super(x, y, w, h);
     }
 
-    public boolean isOnTopOf(MattoneTile mattone) {
-        // semplice controllo bounding box
-        return Math.abs(this.x - mattone.x) < TILE_SIZE &&
-                Math.abs(this.y - (mattone.y + TILE_SIZE)) < 2;
-    }
 
-    public boolean isOverlapping(ScalaTile scala) {
-        // bounding box overlap
-        return Math.abs(this.x - scala.x) < TILE_SIZE &&
-                Math.abs(this.y - scala.y) < TILE_SIZE;
-    }
+
 }

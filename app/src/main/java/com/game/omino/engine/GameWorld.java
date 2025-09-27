@@ -1,5 +1,6 @@
 package com.game.omino.engine;
 
+import com.game.omino.entities.Entity;
 import com.game.omino.entities.Nemico;
 import com.game.omino.entities.Omino;
 import com.game.omino.levels.Level;
@@ -38,8 +39,8 @@ public class GameWorld {
 
     public void update(float deltaTime) {
         if (!isOnMattone() && !isOnScala()) {
-           // omino.velocityY += GRAVITY * deltaTime;
-            // omino.y -= omino.velocityY;
+            omino.velocityY += GRAVITY * deltaTime;
+            omino.y -= omino.velocityY;
         } else {
             omino.velocityY = 0;
         }
@@ -52,16 +53,31 @@ public class GameWorld {
 
     private boolean isOnMattone() {
         for (MattoneTile mattone : mattoni) {
-            if (omino.isOnTopOf(mattone)) return true;
+            if (isOnTopOf(omino, mattone)) return true;
         }
         return false;
     }
 
     private boolean isOnScala() {
         for (ScalaTile scala : scale) {
-            if (omino.isOverlapping(scala)) return true;
+            if (isOverlapping(omino, scala)) return true;
         }
         return false;
+    }
+
+    public boolean isOnTopOf(Entity entity, MattoneTile mattone) {
+        // semplice controllo bounding box
+        //return Math.abs(entity.x - mattone.x) < TILE_SIZE &&
+        //        Math.abs(entity.y - (mattone.y + TILE_SIZE)) < 2;
+
+        return entity.y + entity.h >= mattone.y;
+    }
+
+    public boolean isOverlapping(Entity entity, ScalaTile scala) {
+        // bounding box overlap
+//        return Math.abs(this.x - scala.x) < TILE_SIZE &&
+//                Math.abs(this.y - scala.y) < TILE_SIZE;
+        return entity.y + entity.h >= scala.y;
     }
 
     // Getter per JNI
