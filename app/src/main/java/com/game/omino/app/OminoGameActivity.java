@@ -35,7 +35,7 @@ public class OminoGameActivity extends AppCompatActivity {
 				makeMoveListener(new Runnable() {
 					@Override
 					public void run() {
-						GameWorld.getInstance().getOmino().y-=STEP;
+						GameWorld.getInstance().getOmino().su();
 					}
 				})
 		);
@@ -44,7 +44,7 @@ public class OminoGameActivity extends AppCompatActivity {
 				makeMoveListener(new Runnable() {
 					@Override
 					public void run() {
-						GameWorld.getInstance().getOmino().y+=STEP;
+						GameWorld.getInstance().getOmino().giu();
 					}
 				})
 		);
@@ -53,7 +53,7 @@ public class OminoGameActivity extends AppCompatActivity {
 				makeMoveListener(new Runnable() {
 					@Override
 					public void run() {
-						GameWorld.getInstance().getOmino().x-=STEP;
+						GameWorld.getInstance().getOmino().sinistra();
 					}
 				})
 		);
@@ -62,7 +62,7 @@ public class OminoGameActivity extends AppCompatActivity {
 				makeMoveListener(new Runnable() {
 					@Override
 					public void run() {
-						GameWorld.getInstance().getOmino().x+=STEP;
+						GameWorld.getInstance().getOmino().destra();
 					}
 				})
 		);

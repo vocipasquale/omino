@@ -51,7 +51,7 @@ public class GameRenderer implements GLSurfaceView.Renderer {
 
         // Passaggio dati a C++
         Omino o = GameWorld.getInstance().getOmino();
-        nativeSetOminoPosition(o.x, o.y);
+        nativeSetOminoPosition(o.getX(), o.getY());
         nativeSetMattonePositions(GameWorld.getInstance().getMattonePositionsFlat());
         nativeSetScalaPositions(GameWorld.getInstance().getScalaPositionsFlat());
 

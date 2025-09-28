@@ -13,14 +13,11 @@ import com.game.omino.scene.tiles.Tile;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.game.omino.utils.Constants.SCREEN_HEIGHT;
-import static com.game.omino.utils.Constants.TILE_SIZE;
+import static com.game.omino.utils.Constants.*;
 
 public class GameWorld {
 
     private static GameWorld instance;
-
-    private static final float GRAVITY = -9.8f;
 
     private List<MattoneTile> mattoni;
     private List<ScalaTile> scale;
@@ -38,47 +35,48 @@ public class GameWorld {
     }
 
     public void update(float deltaTime) {
-        if (!isOnMattone() && !isOnScala()) {
-            omino.velocityY += GRAVITY * deltaTime;
-            omino.y -= omino.velocityY;
-        } else {
-            omino.velocityY = 0;
+        //se non cammina su tiles...
+        if (!isOnTiles(omino)) {
+            omino.setY(omino.getY() - GRAVITY);
         }
 
-        if (omino.y > SCREEN_HEIGHT - TILE_SIZE) {
-            omino.y = SCREEN_HEIGHT - TILE_SIZE;
-            omino.velocityY = 0;
+        //se collide con nemico
+        if(false){
+            //...
+        }
+
+        //supera confine inferiore...
+        if (omino.getY() > SCREEN_HEIGHT - omino.getH()) {
+            omino.setY(SCREEN_HEIGHT - omino.getH());
         }
     }
 
-    private boolean isOnMattone() {
-        for (MattoneTile mattone : mattoni) {
-            if (isOnTopOf(omino, mattone)) return true;
+    public boolean isOnTiles(Entity entity){
+//        int cont = 0;
+//        List<Tile> allTiles = new ArrayList<>();
+//        allTiles.addAll(mattoni);
+//        allTiles.addAll(scale);
+//        for (Tile tile: allTiles){
+//            if(tile.y == entity.getY() + entity.getH()
+//                    && Math.abs(entity.getX() - tile.x) < tile.w){
+//                cont++;
+//            }
+//        }
+//        return cont > 0;
+
+        boolean trovato = false;
+        List<Tile> allTiles = new ArrayList<>();
+        allTiles.addAll(mattoni);
+        allTiles.addAll(scale);
+        for (int t=0; t<allTiles.size()&& !trovato; t++){
+            trovato = allTiles.get(t).y == entity.getY() + entity.getH()
+                    &&
+                     Math.abs(entity.getX() - allTiles.get(t).x) < allTiles.get(t).w;
+
         }
-        return false;
+        return trovato;
     }
 
-    private boolean isOnScala() {
-        for (ScalaTile scala : scale) {
-            if (isOverlapping(omino, scala)) return true;
-        }
-        return false;
-    }
-
-    public boolean isOnTopOf(Entity entity, MattoneTile mattone) {
-        // semplice controllo bounding box
-        //return Math.abs(entity.x - mattone.x) < TILE_SIZE &&
-        //        Math.abs(entity.y - (mattone.y + TILE_SIZE)) < 2;
-
-        return entity.y + entity.h >= mattone.y;
-    }
-
-    public boolean isOverlapping(Entity entity, ScalaTile scala) {
-        // bounding box overlap
-//        return Math.abs(this.x - scala.x) < TILE_SIZE &&
-//                Math.abs(this.y - scala.y) < TILE_SIZE;
-        return entity.y + entity.h >= scala.y;
-    }
 
     // Getter per JNI
     public Omino getOmino() { return omino; }

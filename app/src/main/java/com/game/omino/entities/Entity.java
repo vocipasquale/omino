@@ -1,20 +1,52 @@
 package com.game.omino.entities;
 
 public abstract class Entity {
-    public float x; //posizione X
-    public float y; //posizione Y
-    public int w; //larghezza
-    public int h; //altezza
-
-    public float velocityX; //velocità asse X
-    public float velocityY; //velocità asse Y
+    protected float x; //posizione X
+    protected float y; //posizione Y
+    protected int w; //larghezza
+    protected int h; //altezza
 
     public Entity(float x, float y, int w, int h){
         this.x=x;
         this.y=y;
         this.w=w;
         this.h=h;
-        velocityX=0;
-        velocityY=0;
+    }
+
+    abstract void su();
+    abstract void giu();
+    abstract void sinistra();
+    abstract void destra();
+
+    public float getX() {
+        return x;
+    }
+
+    public void setX(float x) {
+        this.x = x;
+    }
+
+    public float getY() {
+        return y;
+    }
+
+    public void setY(float y) {
+        this.y = y;
+    }
+
+    public int getW() {
+        return w;
+    }
+
+    public void setW(int w) {
+        this.w = w;
+    }
+
+    public int getH() {
+        return h;
+    }
+
+    public void setH(int h) {
+        this.h = h;
     }
 }
