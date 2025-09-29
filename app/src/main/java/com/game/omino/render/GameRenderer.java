@@ -4,6 +4,7 @@ import android.content.res.AssetManager;
 import android.opengl.GLSurfaceView;
 import com.game.omino.engine.GameWorld;
 import com.game.omino.entities.Omino;
+import com.game.omino.levels.LevelBase;
 import com.game.omino.scene.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.microedition.khronos.opengles.GL10;
@@ -15,7 +16,6 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         System.loadLibrary("omino");
     }
 
-    private Scene currentScene;
 
     private final AssetManager assetManager;
     private final AtomicBoolean initialized = new AtomicBoolean(false);
@@ -30,9 +30,6 @@ public class GameRenderer implements GLSurfaceView.Renderer {
             nativeInit(assetManager);
             initialized.set(true);
 
-            // scena iniziale
-            currentScene = new PlayScene();
-            SceneManager.setScene(currentScene);
         }
     }
 
@@ -46,17 +43,22 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         float deltaTime = 1f / 60f; // fisso per ora
 
         // logica e rendering passano dal SceneManager
-        //SceneManager.update(deltaTime);
-        //SceneManager.render();
+        SceneManager.update(deltaTime);
+        SceneManager.render();
+    }
 
-        // Passaggio dati a C++
-        Omino o = GameWorld.getInstance().getOmino();
-        nativeSetOminoPosition(o.getX(), o.getY());
-        nativeSetMattonePositions(GameWorld.getInstance().getMattonePositionsFlat());
-        nativeSetScalaPositions(GameWorld.getInstance().getScalaPositionsFlat());
+    public static void renderWorld(GameWorld world) {
+        // se la scena è PlayScene -> world aggiornato, passo a C++
+        if (SceneManager.getCurrent() instanceof PlayScene) {
+            // Passaggio dati a C++
+            Omino o = GameWorld.getInstance().getOmino();
+            nativeSetOminoPosition(o.getX(), o.getY());
+            nativeSetMattonePositions(GameWorld.getInstance().getMattonePositionsFlat());
+            nativeSetScalaPositions(GameWorld.getInstance().getScalaPositionsFlat());
 
-        // render nativo OpenGL
-        nativeRender();
+            // render nativo OpenGL
+            nativeRender();
+        }
     }
 
     // JNI stubs
