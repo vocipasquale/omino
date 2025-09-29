@@ -11,7 +11,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.game.omino.R;
 import com.game.omino.engine.GameWorld;
+import com.game.omino.levels.LevelBase;
 import com.game.omino.render.GameSurfaceView;
+import com.game.omino.scene.PlayScene;
+import com.game.omino.scene.SceneManager;
 
 import static com.game.omino.utils.Constants.REPEAT_DELAY_MS;
 import static com.game.omino.utils.Constants.STEP;
@@ -29,6 +32,9 @@ public class OminoGameActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_ominogame);
 
 		gameView = findViewById(R.id.game_surface);
+
+		// scena iniziale
+		SceneManager.setScene(new PlayScene(new LevelBase()));
 
 		// usa makeMoveListener passando un Runnable (qui senza lambda per compatibilità)
 		findViewById(R.id.button_up).setOnTouchListener(
