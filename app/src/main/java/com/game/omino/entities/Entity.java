@@ -1,10 +1,17 @@
 package com.game.omino.entities;
 
+import com.game.omino.scene.tiles.ScalaTile;
+
 public abstract class Entity {
     protected float x; //posizione X
     protected float y; //posizione Y
     protected int w; //larghezza
     protected int h; //altezza
+
+    protected boolean falling = false; //sta cadendo
+    protected boolean onMattone = false;
+    protected boolean onScala = false;
+    protected ScalaTile overlappingScala = null; //sovrapposto ad una tile scala
 
     public Entity(float x, float y, int w, int h){
         this.x=x;
@@ -48,5 +55,37 @@ public abstract class Entity {
 
     public void setH(int h) {
         this.h = h;
+    }
+
+    public boolean isFalling() {
+        return falling;
+    }
+
+    public void setFalling(boolean falling) {
+        this.falling = falling;
+    }
+
+    public boolean isOnMattone() {
+        return onMattone;
+    }
+
+    public void setOnMattone(boolean onMattone) {
+        this.onMattone = onMattone;
+    }
+
+    public boolean isOnScala() {
+        return onScala;
+    }
+
+    public void setOnScala(boolean onScala) {
+        this.onScala = onScala;
+    }
+
+    public ScalaTile getOverlappingScala() {
+        return overlappingScala;
+    }
+
+    public void setOverlappingScala(ScalaTile overlappingScala) {
+        this.overlappingScala = overlappingScala;
     }
 }

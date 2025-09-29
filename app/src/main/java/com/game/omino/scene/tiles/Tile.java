@@ -1,10 +1,10 @@
 package com.game.omino.scene.tiles;
 
 public abstract class Tile {
-    public int x; //posizione X
-    public int y; //posizione Y
-    public int w; //larghezza
-    public int h; //altezza
+    protected int x; //posizione X
+    protected int y; //posizione Y
+    protected int w; //larghezza
+    protected int h; //altezza
 
     public Tile(int x, int y, int w, int h) {
         this.x = x;
@@ -13,4 +13,35 @@ public abstract class Tile {
         this.h = h;
     }
 
+    public int getX() {
+        return x;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public int getW() {
+        return w;
+    }
+
+    public void setW(int w) {
+        this.w = w;
+    }
+
+    public int getH() {
+        return h;
+    }
+
+    public void setH(int h) {
+        this.h = h;
+    }
 }

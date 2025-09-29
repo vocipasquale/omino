@@ -7,5 +7,6 @@ public interface Constants {
     public static final float GRAVITY = (-1)*STEP/5; //lascio il -1 per ricordarmi della "gravità" (-9.8f);
     public static final int SCREEN_WIDTH = 18 * TILE_SIZE;
     public static final int SCREEN_HEIGHT = 29 * TILE_SIZE;
+    public static final int MIN_DIST_OVERLLAPPING_SCALA = TILE_SIZE/10; //+ o - il 10%
 
 }

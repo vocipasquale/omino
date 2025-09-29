@@ -1,5 +1,6 @@
 package com.game.omino.entities;
 
+import com.game.omino.engine.GameWorld;
 import com.game.omino.scene.tiles.MattoneTile;
 import com.game.omino.scene.tiles.ScalaTile;
 
@@ -13,22 +14,32 @@ public class Omino extends Entity {
 
     @Override
     public void su() {
-        y-=STEP;
+        if(overlappingScala!=null) {
+            x = overlappingScala.getX();
+            y -= STEP;
+        }
     }
 
     @Override
     public void giu() {
-        y+=STEP;
+        if(overlappingScala!=null && !onMattone) {
+            x = overlappingScala.getX();
+            y += STEP;
+        }
     }
 
     @Override
     public void sinistra() {
-        x-=STEP;
+        if(!falling) {
+            x -= STEP;
+        }
     }
 
     @Override
     public void destra() {
-        x+=STEP;
+        if(!falling) {
+            x += STEP;
+        }
     }
 
 

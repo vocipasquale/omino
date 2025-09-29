@@ -3,6 +3,7 @@ package com.game.omino.levels;
 import android.util.DisplayMetrics;
 import com.game.omino.entities.Omino;
 import com.game.omino.scene.tiles.MattoneTile;
+import com.game.omino.scene.tiles.ScalaTile;
 import com.game.omino.scene.tiles.Tile;
 
 import java.util.ArrayList;
@@ -50,9 +51,20 @@ public class LevelBase extends Level {
             mattoni.add(mattone);
         }
 
+        ScalaTile scala = new ScalaTile(SCREEN_WIDTH/2, (SCREEN_HEIGHT/2)+TILE_SIZE*5, TILE_SIZE, TILE_SIZE);
+        ScalaTile scala2 = new ScalaTile(SCREEN_WIDTH/2, (SCREEN_HEIGHT/2)+TILE_SIZE*6, TILE_SIZE, TILE_SIZE);
+        ScalaTile scala3 = new ScalaTile(SCREEN_WIDTH/2, (SCREEN_HEIGHT/2)+(TILE_SIZE*7), TILE_SIZE, TILE_SIZE);
+        ScalaTile scala4 = new ScalaTile(SCREEN_WIDTH/2, (SCREEN_HEIGHT/2)+(TILE_SIZE*8), TILE_SIZE, TILE_SIZE);
+        ScalaTile scala5 = new ScalaTile(SCREEN_WIDTH/2, (SCREEN_HEIGHT/2)+(TILE_SIZE*9), TILE_SIZE, TILE_SIZE);
+
+        scale.add(scala);
+        scale.add(scala2);
+        scale.add(scala3);
+        scale.add(scala4);
+        scale.add(scala5);
+
         omino = new Omino(TILE_SIZE * 8, SCREEN_HEIGHT - (TILE_SIZE*15), TILE_SIZE, TILE_SIZE);
 
-        scale = new ArrayList<>();
 
     }
 
