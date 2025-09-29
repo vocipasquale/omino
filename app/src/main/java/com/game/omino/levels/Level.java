@@ -14,8 +14,7 @@ public abstract class Level {
 
     protected int wScreen = 0;
     protected int hScreen = 0;
-
-    abstract void setMetrics();
+;
 
 
     public List<MattoneTile> getMattoni(){

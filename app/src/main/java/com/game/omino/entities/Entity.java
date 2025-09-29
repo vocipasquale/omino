@@ -1,20 +1,91 @@
 package com.game.omino.entities;
 
-public abstract class Entity {
-    public float x; //posizione X
-    public float y; //posizione Y
-    public int w; //larghezza
-    public int h; //altezza
+import com.game.omino.scene.tiles.ScalaTile;
 
-    public float velocityX; //velocità asse X
-    public float velocityY; //velocità asse Y
+public abstract class Entity {
+    protected float x; //posizione X
+    protected float y; //posizione Y
+    protected int w; //larghezza
+    protected int h; //altezza
+
+    protected boolean falling = false; //sta cadendo
+    protected boolean onMattone = false;
+    protected boolean onScala = false;
+    protected ScalaTile overlappingScala = null; //sovrapposto ad una tile scala
 
     public Entity(float x, float y, int w, int h){
         this.x=x;
         this.y=y;
         this.w=w;
         this.h=h;
-        velocityX=0;
-        velocityY=0;
+    }
+
+    abstract void su();
+    abstract void giu();
+    abstract void sinistra();
+    abstract void destra();
+
+    public float getX() {
+        return x;
+    }
+
+    public void setX(float x) {
+        this.x = x;
+    }
+
+    public float getY() {
+        return y;
+    }
+
+    public void setY(float y) {
+        this.y = y;
+    }
+
+    public int getW() {
+        return w;
+    }
+
+    public void setW(int w) {
+        this.w = w;
+    }
+
+    public int getH() {
+        return h;
+    }
+
+    public void setH(int h) {
+        this.h = h;
+    }
+
+    public boolean isFalling() {
+        return falling;
+    }
+
+    public void setFalling(boolean falling) {
+        this.falling = falling;
+    }
+
+    public boolean isOnMattone() {
+        return onMattone;
+    }
+
+    public void setOnMattone(boolean onMattone) {
+        this.onMattone = onMattone;
+    }
+
+    public boolean isOnScala() {
+        return onScala;
+    }
+
+    public void setOnScala(boolean onScala) {
+        this.onScala = onScala;
+    }
+
+    public ScalaTile getOverlappingScala() {
+        return overlappingScala;
+    }
+
+    public void setOverlappingScala(ScalaTile overlappingScala) {
+        this.overlappingScala = overlappingScala;
     }
 }

@@ -5,7 +5,6 @@ import com.game.omino.entities.Nemico;
 import com.game.omino.entities.Omino;
 import com.game.omino.levels.Level;
 import com.game.omino.levels.LevelBase;
-import com.game.omino.render.GameRenderer;
 import com.game.omino.scene.tiles.MattoneTile;
 import com.game.omino.scene.tiles.ScalaTile;
 import com.game.omino.scene.tiles.Tile;
@@ -13,14 +12,11 @@ import com.game.omino.scene.tiles.Tile;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.game.omino.utils.Constants.SCREEN_HEIGHT;
-import static com.game.omino.utils.Constants.TILE_SIZE;
+import static com.game.omino.utils.Constants.*;
 
 public class GameWorld {
 
     private static GameWorld instance;
-
-    private static final float GRAVITY = -9.8f;
 
     private List<MattoneTile> mattoni;
     private List<ScalaTile> scale;
@@ -38,47 +34,58 @@ public class GameWorld {
     }
 
     public void update(float deltaTime) {
-        if (!isOnMattone() && !isOnScala()) {
-            omino.velocityY += GRAVITY * deltaTime;
-            omino.y -= omino.velocityY;
-        } else {
-            omino.velocityY = 0;
+        //check sovrapposizione a una tile scala...
+        omino.setOverlappingScala(getOverlappingScala(omino));
+        omino.setOnMattone(isOnTiles(omino, mattoni));
+        omino.setOnScala(isOnTiles(omino, scale));
+
+        //se non cammina su tiles e non è su una scala, applico gravità
+        if (!omino.isOnMattone() && !omino.isOnScala() && omino.getOverlappingScala() == null) {
+            omino.setFalling(true);
+            omino.setY(omino.getY() - GRAVITY);
+        }else{
+            //non sta cadendo...
+            omino.setFalling(false);
         }
 
-        if (omino.y > SCREEN_HEIGHT - TILE_SIZE) {
-            omino.y = SCREEN_HEIGHT - TILE_SIZE;
-            omino.velocityY = 0;
+
+
+        //se collide con nemico
+        if(false){
+            //...
+        }
+
+        //supera confine inferiore...
+        if (omino.getY() > SCREEN_HEIGHT - omino.getH()) {
+            omino.setY(SCREEN_HEIGHT - omino.getH());
         }
     }
 
-    private boolean isOnMattone() {
-        for (MattoneTile mattone : mattoni) {
-            if (isOnTopOf(omino, mattone)) return true;
+    public boolean isOnTiles(Entity entity, List<? extends Tile> tiles){
+        boolean trovato = false;
+        for (int t=0; t<tiles.size()&& !trovato; t++){
+            trovato = tiles.get(t).getY() == entity.getY() + entity.getH()
+                    &&
+                    Math.abs(entity.getX() - tiles.get(t).getX()) < tiles.get(t).getW();
         }
-        return false;
+        return trovato;
     }
 
-    private boolean isOnScala() {
-        for (ScalaTile scala : scale) {
-            if (isOverlapping(omino, scala)) return true;
+    public ScalaTile getOverlappingScala(Omino omino) {
+        ScalaTile scalaTile = null;
+        boolean trovato = false;
+        for (int s=0; s<scale.size()&& !trovato; s++){
+            trovato =
+                    Math.abs(omino.getX() - scale.get(s).getX()) <= MIN_DIST_OVERLLAPPING_SCALA
+                        &&
+                    Math.abs(omino.getY() - scale.get(s).getY()) <= omino.getH();
+            if(trovato){
+                scalaTile = scale.get(s);
+            }
         }
-        return false;
+        return scalaTile;
     }
 
-    public boolean isOnTopOf(Entity entity, MattoneTile mattone) {
-        // semplice controllo bounding box
-        //return Math.abs(entity.x - mattone.x) < TILE_SIZE &&
-        //        Math.abs(entity.y - (mattone.y + TILE_SIZE)) < 2;
-
-        return entity.y + entity.h >= mattone.y;
-    }
-
-    public boolean isOverlapping(Entity entity, ScalaTile scala) {
-        // bounding box overlap
-//        return Math.abs(this.x - scala.x) < TILE_SIZE &&
-//                Math.abs(this.y - scala.y) < TILE_SIZE;
-        return entity.y + entity.h >= scala.y;
-    }
 
     // Getter per JNI
     public Omino getOmino() { return omino; }
@@ -86,8 +93,8 @@ public class GameWorld {
     public float[] getMattonePositionsFlat() {
         float[] arr = new float[mattoni.size() * 2];
         for (int i = 0; i < mattoni.size(); i++) {
-            arr[i * 2] = mattoni.get(i).x;
-            arr[i * 2 + 1] = mattoni.get(i).y;
+            arr[i * 2] = mattoni.get(i).getX();
+            arr[i * 2 + 1] = mattoni.get(i).getY();
         }
         return arr;
     }
@@ -95,8 +102,8 @@ public class GameWorld {
     public float[] getScalaPositionsFlat() {
         float[] arr = new float[scale.size() * 2];
         for (int i = 0; i < scale.size(); i++) {
-            arr[i * 2] = scale.get(i).x;
-            arr[i * 2 + 1] = scale.get(i).y;
+            arr[i * 2] = scale.get(i).getX();
+            arr[i * 2 + 1] = scale.get(i).getY();
         }
         return arr;
     }
@@ -107,5 +114,7 @@ public class GameWorld {
         this.scale = level.getScale();
         this.nemici = level.getNemici();
     }
+
+
 
 }
