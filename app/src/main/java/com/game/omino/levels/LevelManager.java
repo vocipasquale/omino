@@ -15,15 +15,15 @@ public class LevelManager {
          * gestire la selezione dei livelli
          */
         loadLevel("0");
-        gameLoop = new GameLoop(this, context);
+
     }
 
     public static void startLevel(){
-        gameLoop.start();
+
     }
 
     public static void stopLevel(){
-        gameLoop.stop();
+
     }
 
     public static void startNextLevel(){
@@ -36,6 +36,6 @@ public class LevelManager {
 
 
     private void loadLevel(String level){
-        currentLevel = LevelLoader.loadLevelFromAsset(context, "/levels/level_"+level);
+        
     }
 }
