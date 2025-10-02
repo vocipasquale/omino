@@ -8,7 +8,7 @@ import static com.game.omino.utils.Constants.STEP;
 import static com.game.omino.utils.Constants.TILE_SIZE;
 
 public class Omino extends Entity {
-    public Omino(float x, float y, int w, int h){
+    public Omino(int x, int y, int w, int h){
         super(x, y, w, h);
     }
 

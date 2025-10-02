@@ -3,8 +3,8 @@ package com.game.omino.entities;
 import com.game.omino.scene.tiles.ScalaTile;
 
 public abstract class Entity {
-    protected float x; //posizione X
-    protected float y; //posizione Y
+    protected int x; //posizione X
+    protected int y; //posizione Y
     protected int w; //larghezza
     protected int h; //altezza
 
@@ -13,7 +13,7 @@ public abstract class Entity {
     protected boolean onScala = false;
     protected ScalaTile overlappingScala = null; //sovrapposto ad una tile scala
 
-    public Entity(float x, float y, int w, int h){
+    public Entity(int x, int y, int w, int h){
         this.x=x;
         this.y=y;
         this.w=w;
@@ -25,19 +25,19 @@ public abstract class Entity {
     abstract void sinistra();
     abstract void destra();
 
-    public float getX() {
+    public int getX() {
         return x;
     }
 
-    public void setX(float x) {
+    public void setX(int x) {
         this.x = x;
     }
 
-    public float getY() {
+    public int getY() {
         return y;
     }
 
-    public void setY(float y) {
+    public void setY(int y) {
         this.y = y;
     }
 

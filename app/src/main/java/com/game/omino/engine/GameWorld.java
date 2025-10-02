@@ -133,7 +133,7 @@ public class GameWorld {
         List<Tile> result = new ArrayList<>();
 
         //tutte le tiles "immediatamente sotto all'entità
-        Tile[] riga = level.getTiles()[(int) (entity.getY()+entity.getY()) + 1];
+        Tile[] riga = level.getTiles()[entity.getY()+entity.getY() + 1];
 
         //DA OTTIMIZZARE
         for(int r=0; r<riga.length; r++){

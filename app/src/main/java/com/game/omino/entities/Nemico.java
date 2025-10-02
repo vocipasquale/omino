@@ -2,7 +2,7 @@ package com.game.omino.entities;
 
 
 public class Nemico extends Entity {
-    public Nemico(float x, float y, int w, int h){
+    public Nemico(int x, int y, int w, int h){
         super(x, y, w, h);
     }
 
