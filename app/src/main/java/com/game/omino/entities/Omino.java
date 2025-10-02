@@ -22,9 +22,11 @@ public class Omino extends Entity {
 
     @Override
     public void giu() {
-        if(overlappingScala!=null && !onMattone) {
+        if(overlappingScala!=null){
             x = overlappingScala.getX();
-            y += STEP;
+            if(overlappingScala!=null && !onMattone) {
+                y += STEP;
+            }
         }
     }
 
