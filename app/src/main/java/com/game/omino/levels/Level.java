@@ -23,6 +23,13 @@ public class Level {
         NullTile nullInstance;
         String riga = "";
 
+        //init
+        for(int r=0; r<SCREEN_HEIGHT; r++){
+            for(int c=0; c<SCREEN_WIDTH; c++){
+                tiles[r][c]=null;
+            }
+        }
+
         for (int r=0; r<TILES_4_COLUMN; r++){
             riga="";
             for(int c=0; c<TILES_4_ROW; c++) {

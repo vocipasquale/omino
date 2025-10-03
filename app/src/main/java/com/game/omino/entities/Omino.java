@@ -14,17 +14,17 @@ public class Omino extends Entity {
 
     @Override
     public void su() {
-        if(overlappingScala!=null) {
-            x = overlappingScala.getX();
+        if(isOverTiles()) {
+            x = tilesOverlapping[0].getX(); //tilesOverlapping[0] scalaTile superiore
             y -= STEP;
         }
     }
 
     @Override
     public void giu() {
-        if(overlappingScala!=null){
-            x = overlappingScala.getX();
-            if(overlappingScala!=null && !onMattone) {
+        if(isOverTiles()){
+            x = tilesOverlapping[1].getX(); //tilesOverlapping[1] scalaTile inferiore
+            if(isOverTiles() && !isOnTiles()) {
                 y += STEP;
             }
         }
@@ -43,6 +43,5 @@ public class Omino extends Entity {
             x += STEP;
         }
     }
-
 
 }
