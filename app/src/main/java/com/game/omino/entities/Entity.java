@@ -1,19 +1,28 @@
 package com.game.omino.entities;
 
+import com.game.omino.engine.GameWorld;
+import com.game.omino.scene.tiles.NullTile;
 import com.game.omino.scene.tiles.ScalaTile;
+import com.game.omino.scene.tiles.Tile;
 
 public abstract class Entity {
-    protected float x; //posizione X
-    protected float y; //posizione Y
+    protected int x; //posizione X
+    protected int y; //posizione Y
     protected int w; //larghezza
     protected int h; //altezza
 
-    protected boolean falling = false; //sta cadendo
-    protected boolean onMattone = false;
-    protected boolean onScala = false;
-    protected ScalaTile overlappingScala = null; //sovrapposto ad una tile scala
+    protected Tile[] tilesDown = new Tile[2]; //[0] tile sotto a sinistra, [1] tile sotto a destra
+    protected Tile tilesUp;
+    protected Tile tilesRight;
+    protected Tile tilesLeft;
+    protected Tile[] tilesOverlapping = new Tile[2]; //[0] tile sopra (Yt < Ye), [1] tile sotto (Y
 
-    public Entity(float x, float y, int w, int h){
+    protected boolean falling = false; //sta cadendo
+   // protected boolean onMattone = false;
+   // protected boolean onScala = false;
+
+
+    public Entity(int x, int y, int w, int h){
         this.x=x;
         this.y=y;
         this.w=w;
@@ -25,19 +34,19 @@ public abstract class Entity {
     abstract void sinistra();
     abstract void destra();
 
-    public float getX() {
+    public int getX() {
         return x;
     }
 
-    public void setX(float x) {
+    public void setX(int x) {
         this.x = x;
     }
 
-    public float getY() {
+    public int getY() {
         return y;
     }
 
-    public void setY(float y) {
+    public void setY(int y) {
         this.y = y;
     }
 
@@ -65,27 +74,53 @@ public abstract class Entity {
         this.falling = falling;
     }
 
-    public boolean isOnMattone() {
-        return onMattone;
+
+    public void setTilesOverlapping(Tile[] overlappingScala) {
+        this.tilesOverlapping = overlappingScala;
     }
 
-    public void setOnMattone(boolean onMattone) {
-        this.onMattone = onMattone;
+
+    public Tile[] getTilesDown() {
+        return tilesDown;
     }
 
-    public boolean isOnScala() {
-        return onScala;
+    public void setTilesDown(Tile[] tilesDown) {
+        this.tilesDown = tilesDown;
     }
 
-    public void setOnScala(boolean onScala) {
-        this.onScala = onScala;
+    public Tile getTilesUp() {
+        return tilesUp;
     }
 
-    public ScalaTile getOverlappingScala() {
-        return overlappingScala;
+    public void setTilesUp(Tile tilesUp) {
+        this.tilesUp = tilesUp;
     }
 
-    public void setOverlappingScala(ScalaTile overlappingScala) {
-        this.overlappingScala = overlappingScala;
+    public Tile getTilesRight() {
+        return tilesRight;
     }
+
+    public void setTilesRight(Tile tilesRight) {
+        this.tilesRight = tilesRight;
+    }
+
+    public Tile getTilesLeft() {
+        return tilesLeft;
+    }
+
+    public void setTilesLeft(Tile tilesLeft) {
+        this.tilesLeft = tilesLeft;
+    }
+
+//    public boolean isOnTiles() {
+//        setTilesDown(GameWorld.getInstance().getLevel().getTilesDown(this));
+//
+//        return tilesDown[0] != null && !(tilesDown[0] instanceof NullTile);
+//    }
+//
+//    public boolean isOverTiles() {
+//        setTilesOverlapping(GameWorld.getInstance().getLevel().getTilesOverlapping(this));
+//
+//        return tilesOverlapping[0] != null && !(tilesOverlapping[0] instanceof NullTile);
+//    }
 }

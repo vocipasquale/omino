@@ -1,25 +1,18 @@
 package com.game.omino.levels;
 
 import android.content.Context;
-import com.game.omino.engine.GameLoop;
 
 public class LevelManager {
 
-    private final Context context;
     private static Level currentLevel;
+    private static String CURRENT_LEVEL_NUM = "0";
 
-    public LevelManager(Context context) {
-        this.context = context;
+    public static Level startLevel(Context context) throws Exception {
+        if(currentLevel == null){
+            currentLevel = LevelLoader.loadLevelFromFile(context, CURRENT_LEVEL_NUM);
+        }
 
-        /**
-         * gestire la selezione dei livelli
-         */
-        loadLevel("0");
-
-    }
-
-    public static void startLevel(){
-
+        return currentLevel;
     }
 
     public static void stopLevel(){
@@ -28,10 +21,6 @@ public class LevelManager {
 
     public static void startNextLevel(){
 
-    }
-
-    public static Level getCurrentLevel() {
-        return currentLevel;
     }
 
 

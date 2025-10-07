@@ -2,7 +2,6 @@ package com.game.omino.scene;
 
 import com.game.omino.engine.GameWorld;
 import com.game.omino.levels.Level;
-import com.game.omino.levels.LevelBase;
 import  com.game.omino.render.GameRenderer;
 
 public class PlayScene implements Scene {

@@ -4,7 +4,6 @@ import android.content.res.AssetManager;
 import android.opengl.GLSurfaceView;
 import com.game.omino.engine.GameWorld;
 import com.game.omino.entities.Omino;
-import com.game.omino.levels.LevelBase;
 import com.game.omino.scene.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.microedition.khronos.opengles.GL10;
@@ -53,8 +52,8 @@ public class GameRenderer implements GLSurfaceView.Renderer {
             // Passaggio dati a C++
             Omino o = GameWorld.getInstance().getOmino();
             nativeSetOminoPosition(o.getX(), o.getY());
-            nativeSetMattonePositions(GameWorld.getInstance().getMattonePositionsFlat());
-            nativeSetScalaPositions(GameWorld.getInstance().getScalaPositionsFlat());
+            nativeSetMattonePositions(GameWorld.getInstance().getLevel().getMattonePositionsFlat());
+            nativeSetScalaPositions(GameWorld.getInstance().getLevel().getScalaPositionsFlat());
 
             // render nativo OpenGL
             nativeRender();
