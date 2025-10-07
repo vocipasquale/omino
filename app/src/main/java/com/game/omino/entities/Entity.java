@@ -1,5 +1,6 @@
 package com.game.omino.entities;
 
+import com.game.omino.engine.GameWorld;
 import com.game.omino.scene.tiles.NullTile;
 import com.game.omino.scene.tiles.ScalaTile;
 import com.game.omino.scene.tiles.Tile;
@@ -111,15 +112,15 @@ public abstract class Entity {
         this.tilesLeft = tilesLeft;
     }
 
-    public boolean isOnTiles() {
-        return tilesDown[0] != null && !(tilesDown[0] instanceof NullTile)
-                ||
-                tilesDown[1] != null && !(tilesDown[1] instanceof NullTile);
-    }
-
-    public boolean isOverTiles() {
-        return tilesOverlapping[0] != null && !(tilesOverlapping[0] instanceof NullTile)
-                ||
-                tilesOverlapping[1] != null && !(tilesOverlapping[1] instanceof NullTile);
-    }
+//    public boolean isOnTiles() {
+//        setTilesDown(GameWorld.getInstance().getLevel().getTilesDown(this));
+//
+//        return tilesDown[0] != null && !(tilesDown[0] instanceof NullTile);
+//    }
+//
+//    public boolean isOverTiles() {
+//        setTilesOverlapping(GameWorld.getInstance().getLevel().getTilesOverlapping(this));
+//
+//        return tilesOverlapping[0] != null && !(tilesOverlapping[0] instanceof NullTile);
+//    }
 }

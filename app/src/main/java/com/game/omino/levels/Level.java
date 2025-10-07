@@ -10,7 +10,7 @@ import java.util.List;
 import static com.game.omino.utils.Constants.*;
 
 public class Level {
-    private Tile[][] tiles = new Tile[SCREEN_HEIGHT][SCREEN_WIDTH];
+    private List<List<Tile>> tiles = new ArrayList<>(); //new Tile[SCREEN_HEIGHT][SCREEN_WIDTH];
     private List<MattoneTile> mattoni = new ArrayList<>();
     private List<ScalaTile> scale = new ArrayList<>();
     private List<Nemico> nemici = new ArrayList<>();
@@ -23,34 +23,42 @@ public class Level {
         NullTile nullInstance;
         String riga = "";
 
-        //init
-        for(int r=0; r<SCREEN_HEIGHT; r++){
-            for(int c=0; c<SCREEN_WIDTH; c++){
-                tiles[r][c]=null;
-            }
-        }
-
-        for (int r=0; r<TILES_4_COLUMN; r++){
-            riga="";
+       for (int r=0; r<TILES_4_COLUMN; r++){
+           List<Tile> row = new ArrayList<>();
             for(int c=0; c<TILES_4_ROW; c++) {
                 if(tilesMatrix[r][c] instanceof MattoneTile){
                     mattoneInstance = (MattoneTile) tilesMatrix[r][c];
-                    tiles[mattoneInstance.getY()][mattoneInstance.getX()]=mattoneInstance;
+                    row.add(mattoneInstance);
                     mattoni.add(mattoneInstance); //temporaneo fino a quando non capisco come usare la matrice...
-                    riga+="@ ("+mattoneInstance.getY()+", "+mattoneInstance.getX()+")\t\t";
                 } else if(tilesMatrix[r][c] instanceof ScalaTile){
                     scalaInstance = (ScalaTile) tilesMatrix[r][c];
-                    tiles[scalaInstance.getY()][scalaInstance.getX()]=scalaInstance;
+                    row.add(scalaInstance);
                     scale.add(scalaInstance);//temporaneo fino a quando non capisco come usare la matrice...
-                    riga+="# ("+scalaInstance.getY()+", "+scalaInstance.getX()+")\t\t";
                 } else if(tilesMatrix[r][c] instanceof NullTile){
                     nullInstance = (NullTile) tilesMatrix[r][c];
-                    tiles[nullInstance.getY()][nullInstance.getX()]=nullInstance;
-                    riga+="- ("+nullInstance.getY()+", "+nullInstance.getX()+")\t\t";
+                    row.add(nullInstance);
+                }
+            }
+            tiles.add(row);
+        }
+
+
+        for (List<Tile> rowLog: tiles){
+            riga="";
+            for(Tile t: rowLog){
+                if(t instanceof MattoneTile){
+                    riga+="@ ("+t.getY()+", "+t.getX()+")\t\t";
+                }else if(t instanceof ScalaTile){
+                    riga+="# ("+t.getY()+", "+t.getX()+")\t\t";
+                }else if(t instanceof NullTile){
+                    riga+="- ("+t.getY()+", "+t.getX()+")\t\t";
                 }
             }
             Log.i("riga: ", riga);
         }
+
+
+
     }
 
     public float[] getMattonePositionsFlat() {
@@ -71,20 +79,104 @@ public class Level {
         return arr;
     }
 
-    public Tile[][] getTiles() {
-        return tiles;
+
+    public List<Tile> getRow(int y){
+        if(y%TILE_SIZE == 0){
+            return tiles.get(y%TILE_SIZE);
+        }
+        return null;
     }
 
-    public List<MattoneTile> getMattoni(){
-        return mattoni;
-    }
-    public List<ScalaTile> getScale(){
-        return scale;
+    public List<Tile> getColumn(int x){
+        if(x%TILE_SIZE == 0){
+            List<Tile> col = new ArrayList<>();
+            for(List<Tile> row:tiles){
+                col.add(row.get(x%TILE_SIZE));
+            }
+            return col;
+        }
+        return null;
     }
 
-    public List<Nemico> getNemici(){
-        return nemici;
+    /**
+     * restituisce le quattro tile che contengono la tile (y, x).
+     *
+     * @param y
+     * @param x
+     * @return
+     */
+    public List<Tile> getArea(int y, int x){
+        List<Tile> area = new ArrayList<>();
+        area.add(tiles.get(y/TILE_SIZE).get(x/TILE_SIZE));
+        area.add(tiles.get(y/TILE_SIZE).get((x+TILE_SIZE)/TILE_SIZE));
+        area.add(tiles.get(((y+TILE_SIZE)/TILE_SIZE)).get(x/TILE_SIZE));
+        area.add(tiles.get(((y+TILE_SIZE)/TILE_SIZE)).get((x+TILE_SIZE)/TILE_SIZE));
+        return area;
     }
+
+    public boolean isFreeArea(int y, int x){
+        boolean result = true;
+        List<Tile> area = getArea(y,x);
+        for(int t=0; t<area.size() && result; t++){
+            result = area.get(t) instanceof NullTile;
+        }
+        return result;
+    }
+
+
+    public Tile[] getTilesDown(Entity entity){
+        Tile[] result = new Tile[2];
+        List<Tile> row = getRow(entity.getY()+entity.getH());
+        int c = 0;
+
+        if(row != null) {
+            for (int t = 0; t < row.size() && c < 2; t += TILE_SIZE) {
+                if (row.get(t).getY() == entity.getY() + entity.getH()
+                        && Math.abs(entity.getX() - row.get(t).getX()) < row.get(t).getW()) {
+                    result[c++] = row.get(t);
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * restituisce due ScaleTile sovrapposte da entity.
+     *
+     * @param entity
+     * @return
+     */
+    public Tile[] getTilesOverlapping(Entity entity) {
+        int t=0;
+        Tile[] result = new Tile[2];
+        List<Tile> area = getArea(entity.getY(), entity.getX());
+        for(int i=0; i<area.size(); i++){
+            if(area.get(i) instanceof ScalaTile
+                    && ((Math.abs(entity.getX()-area.get(i).getX()) < TILE_SIZE/5)
+                    || (Math.abs(entity.getX()+TILE_SIZE-area.get(i).getX()) < TILE_SIZE/5))){
+                result[t++]=area.get(i);
+            }
+        }
+        return result;
+    }
+
+
+
+    /**
+     * dati y e x in input restituisce la Tile solo se y e x
+     * sono le esatte coordinate della tile, altrimenti null.
+     *
+     * @param y
+     * @param x
+     * @return
+     */
+    public Tile getExactTile(int y, int x){
+        if(y % TILE_SIZE == 0 && x % TILE_SIZE == 0){ //y e x multipli di TILE_SIZE
+            return tiles.get(y).get(x);
+        }
+        return null;
+    }
+
 
     public Omino getOmino(){
         return omino;
