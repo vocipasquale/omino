@@ -12,8 +12,15 @@ import static com.game.omino.utils.Constants.STEP;
 import static com.game.omino.utils.Constants.TILE_SIZE;
 
 public class Omino extends Entity {
+
+    private static final String IDLE_DX_TX = "omino_idle_dx";
+    private static final String IDLE_SX_TX = "omino_idle_sx";
+    private static final String RUN_DX_TX = "omino_run_dx";
+    private static final String RUN_SX_TX = "omino_run_sx";
+
+
     public Omino(int x, int y, int w, int h){
-        super(x, y, w, h);
+        super(IDLE_DX_TX, x, y, w, h);
     }
 
     @Override
@@ -26,6 +33,7 @@ public class Omino extends Entity {
             }else{
                 y -= STEP;
             }
+            currentAnimation = RUN_DX_TX;
         }
     }
 
@@ -40,9 +48,9 @@ public class Omino extends Entity {
                 if(!(t instanceof MattoneTile)){//se non è mattone può essere solo ScalaTile o NullTile
                     x = t.getX(); //allineamento...
                     y += STEP;
+                    currentAnimation = RUN_SX_TX;
                 }
             }
-
     }
 
     @Override
@@ -54,6 +62,7 @@ public class Omino extends Entity {
             }else{
                 x -= STEP;
             }
+            currentAnimation = RUN_SX_TX;
         }
 
     }
@@ -67,8 +76,28 @@ public class Omino extends Entity {
             }else{
                 x += STEP;
             }
+            currentAnimation = RUN_DX_TX;
         }
+    }
 
+    @Override
+    public void stopSu() {
+        currentAnimation = IDLE_DX_TX;
+    }
+
+    @Override
+    public void stopGiu() {
+        currentAnimation = IDLE_SX_TX;
+    }
+
+    @Override
+    public void stopDestra() {
+        currentAnimation = IDLE_DX_TX;
+    }
+
+    @Override
+    public void stopSinistra() {
+        currentAnimation = IDLE_SX_TX;
     }
 
 }

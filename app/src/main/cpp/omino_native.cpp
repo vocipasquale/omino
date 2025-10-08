@@ -74,10 +74,25 @@ struct Vec2 {
     float x, y;
 };
 
-// Posizioni
-static Vec2 ominoPos = {0, 0};
-static std::vector<Vec2> mattoni;
-static std::vector<Vec2> scale;
+
+struct Entity {
+    Vec2 pos;
+    std::string currentAn;
+    int currentFrame; // Indice del frame corrente
+    float animationTime; // Tempo trascorso per l'animazione
+    float frameDuration; // Durata di ogni frame
+};
+
+struct Scala {
+    Vec2 pos;
+    std::string textureKey;
+};
+
+
+static Entity omino;
+static std::vector<Entity> nemici;
+static std::vector<Entity> mattoni;
+static std::vector<Scala> scale;
 
 // Gestione textures
 static std::map<std::string, Texture> textures;
@@ -100,6 +115,8 @@ static int screenHeight = 0;
 // Funzione di utilità
 // -----------------------------
 static Texture loadTextureFromAsset(const std::string& filename) {
+    __android_log_print(ANDROID_LOG_DEBUG, "omino Cpp", "loadTextureFromAsset", "");
+
     AAsset* asset = AAssetManager_open(g_assetMgr, filename.c_str(), AASSET_MODE_BUFFER);
     if (!asset) {
         __android_log_print(ANDROID_LOG_ERROR, "omino", "Asset non trovato: %s", filename.c_str());
@@ -158,6 +175,13 @@ static void drawQuad(const Texture& tex, float x, float y) {
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
+static std::string jstringToString(JNIEnv* env, jstring jStr) {
+           const char* chars = env->GetStringUTFChars(jStr, nullptr);
+           std::string str(chars);
+           env->ReleaseStringUTFChars(jStr, chars);
+           return str;
+}
+
 // -----------------------------
 // JNI
 // -----------------------------
@@ -165,10 +189,32 @@ extern "C" JNIEXPORT void JNICALL
 Java_com_game_omino_render_GameRenderer_nativeInit(JNIEnv* env, jclass, jobject assetManager) {
     g_assetMgr = AAssetManager_fromJava(env, assetManager);
 
-    // Carica textures
-    textures["omino_idle"] = loadTextureFromAsset("sprites/omino_idle.png");
+    textures["omino_idle_dx"] = loadTextureFromAsset("sprites/omino_1.png");
+    textures["omino_idle_sx"] = loadTextureFromAsset("sprites/omino_5.png");
+    textures["omino_falling"] = loadTextureFromAsset("sprites/omino_1.png");
+
+    textures["omino_run_dx_1"] = loadTextureFromAsset("sprites/omino_1.png");
+    textures["omino_run_dx_2"] = loadTextureFromAsset("sprites/omino_2.png");
+    textures["omino_run_dx_3"] = loadTextureFromAsset("sprites/omino_3.png");
+    textures["omino_run_dx_4"] = loadTextureFromAsset("sprites/omino_4.png");
+    textures["omino_run_dx_5"] = loadTextureFromAsset("sprites/omino_5.png");
+
+    textures["omino_run_sx_1"] = loadTextureFromAsset("sprites/omino_5.png");
+    textures["omino_run_sx_2"] = loadTextureFromAsset("sprites/omino_4.png");
+    textures["omino_run_sx_3"] = loadTextureFromAsset("sprites/omino_3.png");
+    textures["omino_run_sx_4"] = loadTextureFromAsset("sprites/omino_2.png");
+    textures["omino_run_sx_5"] = loadTextureFromAsset("sprites/omino_1.png");
+
+    textures["omino_run_up_1"] = loadTextureFromAsset("sprites/omino_2.png");
+    textures["omino_run_up_2"] = loadTextureFromAsset("sprites/omino_4.png");
+    textures["omino_run_down_1"] = loadTextureFromAsset("sprites/omino_4.png");
+    textures["omino_run_down_2"] = loadTextureFromAsset("sprites/omino_2.png");
+
     textures["mattone"]    = loadTextureFromAsset("tiles/mattone.png");
     textures["scala"]      = loadTextureFromAsset("tiles/scala.png");
+
+    //init Omino
+    omino = { {0.0f, 0.0f}, "omino_idle_dx", 0, 0.0f, 0.1f };
 
     glEnable(GL_BLEND);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -190,8 +236,16 @@ Java_com_game_omino_render_GameRenderer_nativeResize(JNIEnv*, jclass, jint width
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_game_omino_render_GameRenderer_nativeSetOminoPosition(JNIEnv*, jclass, jfloat x, jfloat y) {
-    ominoPos = {x, y};
+Java_com_game_omino_render_GameRenderer_nativeSetOminoPositions(JNIEnv* env, jclass, jfloat x, jfloat y, jstring currentAnimation) {
+       //__android_log_print(ANDROID_LOG_DEBUG, "omino", "nativeSetOminoPositions", "");
+
+       const char* chars = env->GetStringUTFChars(currentAnimation, nullptr);
+
+       omino.pos.x = x;
+       omino.pos.y = y;
+       omino.currentAn = std::string(chars);
+
+       env->ReleaseStringUTFChars(currentAnimation, chars); // Rilascia la memoria
 }
 
 extern "C" JNIEXPORT void JNICALL
@@ -216,15 +270,50 @@ Java_com_game_omino_render_GameRenderer_nativeSetScalaPositions(JNIEnv* env, jcl
     env->ReleaseFloatArrayElements(arr, data, 0);
 }
 
+
+static void changeFrameSetOmino(int maxIdx) {
+   omino.animationTime += 0.016f; // Supponendo un frame rate di circa 60 FPS
+   if (omino.animationTime >= omino.frameDuration) {
+       if(omino.currentFrame < maxIdx){
+           omino.currentFrame++;
+       }else {
+           omino.currentFrame = 0;
+       }
+       omino.animationTime = 0.0f; // Resetta il tempo
+   }
+}
+
+
 extern "C" JNIEXPORT void JNICALL
-Java_com_game_omino_render_GameRenderer_nativeRender(JNIEnv*, jclass) {
+Java_com_game_omino_render_GameRenderer_nativeRender(JNIEnv* env, jclass) {
     glClear(GL_COLOR_BUFFER_BIT);
 
     for (auto& m : mattoni)
-        drawQuad(textures["mattone"], m.x, m.y);
+        drawQuad(textures["mattone"], m.pos.x, m.pos.y);
 
     for (auto& s : scale)
-        drawQuad(textures["scala"], s.x, s.y);
+        drawQuad(textures["scala"], s.pos.x, s.pos.y);
 
-    drawQuad(textures["omino_idle"], ominoPos.x, ominoPos.y);
+
+    //__android_log_print(ANDROID_LOG_DEBUG, "omino", "Current Animation: %s", ominoAn.currentAnimation.c_str());
+   // __android_log_print(ANDROID_LOG_DEBUG, "omino", "Omino Position: (%f, %f)", ominoAn.pos.x, ominoAn.pos.y);
+
+
+    std::string key = "";
+    if(omino.currentAn == "omino_run_dx"
+        || omino.currentAn == "omino_run_sx" ){
+        changeFrameSetOmino(5);
+        key = omino.currentAn + "_" + std::to_string(omino.currentFrame);
+
+    }else if(omino.currentAn == "omino_run_up"
+        || omino.currentAn == "omino_run_down" ){
+            changeFrameSetOmino(2);
+            key = omino.currentAn + "_" + std::to_string(omino.currentFrame);
+    }else { //omino_idle_dx; omino_idle_sx; omino_falling;
+            key = omino.currentAn;
+    }
+
+    // Disegna il frame corrente dell'animazione
+    drawQuad(textures[key], omino.pos.x, omino.pos.y);
 }
+

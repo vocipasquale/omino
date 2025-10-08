@@ -28,7 +28,6 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         if (!initialized.get()) {
             nativeInit(assetManager);
             initialized.set(true);
-
         }
     }
 
@@ -51,7 +50,7 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         if (SceneManager.getCurrent() instanceof PlayScene) {
             // Passaggio dati a C++
             Omino o = GameWorld.getInstance().getOmino();
-            nativeSetOminoPosition(o.getX(), o.getY());
+            nativeSetOminoPositions(o.getX(), o.getY(), o.getCurrentAnimation());
             nativeSetMattonePositions(GameWorld.getInstance().getLevel().getMattonePositionsFlat());
             nativeSetScalaPositions(GameWorld.getInstance().getLevel().getScalaPositionsFlat());
 
@@ -66,7 +65,7 @@ public class GameRenderer implements GLSurfaceView.Renderer {
     private static native void nativeRender();
 
     // JNI helpers da implementare in C++:
-    private static native void nativeSetOminoPosition(float x, float y);
+    private static native void nativeSetOminoPositions(float x, float y, String currentAnimation);
     private static native void nativeSetMattonePositions(float[] positions);
     private static native void nativeSetScalaPositions(float[] positions);
 }

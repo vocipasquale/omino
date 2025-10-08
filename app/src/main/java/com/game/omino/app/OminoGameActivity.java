@@ -118,6 +118,20 @@ public class OminoGameActivity extends AppCompatActivity {
 							repeatRunnable = null;
 						}
 						v.setPressed(false);
+
+						// azione di rilascio
+						if (moveAction instanceof Runnable) {
+							if (v.getId() == R.id.button_up) {
+								GameWorld.getInstance().getOmino().stopSu();
+							} else if (v.getId() == R.id.button_down) {
+								GameWorld.getInstance().getOmino().stopGiu();
+							} else if (v.getId() == R.id.button_right) {
+								GameWorld.getInstance().getOmino().stopDestra();
+							} else if (v.getId() == R.id.button_left) {
+								GameWorld.getInstance().getOmino().stopSinistra();
+							}
+						}
+
 						return true;
 				}
 				return false;

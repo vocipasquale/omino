@@ -3,26 +3,46 @@ package com.game.omino.entities;
 
 public class Nemico extends Entity {
     public Nemico(int x, int y, int w, int h){
-        super(x, y, w, h);
+        super("", x, y, w, h);
     }
 
     @Override
-    void su() {
-
-    }
-
-    @Override
-    void giu() {
+    public void su() {
 
     }
 
     @Override
-    void sinistra() {
+    public void giu() {
 
     }
 
     @Override
-    void destra() {
+    public void sinistra() {
+
+    }
+
+    @Override
+    public void destra() {
+
+    }
+
+    @Override
+    public void stopSu() {
+
+    }
+
+    @Override
+    public void stopGiu() {
+
+    }
+
+    @Override
+    public void stopDestra() {
+
+    }
+
+    @Override
+    public void stopSinistra() {
 
     }
 }
