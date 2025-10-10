@@ -76,6 +76,9 @@ public class OminoGameActivity extends AppCompatActivity {
 					}
 				})
 		);
+
+		findViewById(R.id.button_center).setOnTouchListener(makeFireListener());
+
 	}
 
 	/**
@@ -131,7 +134,28 @@ public class OminoGameActivity extends AppCompatActivity {
 								GameWorld.getInstance().getOmino().stopSinistra();
 							}
 						}
+						return true;
+				}
+				return false;
+			}
+		};
+	}
 
+
+	private View.OnTouchListener makeFireListener() {
+		return new View.OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				switch (event.getAction()) {
+					case MotionEvent.ACTION_DOWN:
+						// Chiama fire() solo al click
+						GameWorld.getInstance().getOmino().fire();
+						v.setPressed(true);
+						return true;
+
+					case MotionEvent.ACTION_UP:
+					case MotionEvent.ACTION_CANCEL:
+						v.setPressed(false);
 						return true;
 				}
 				return false;

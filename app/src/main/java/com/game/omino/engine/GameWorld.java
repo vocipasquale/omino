@@ -5,6 +5,7 @@ import com.game.omino.entities.Entity;
 import com.game.omino.entities.Omino;
 import com.game.omino.levels.Level;
 import com.game.omino.scene.tiles.MattoneTile;
+import com.game.omino.scene.tiles.NullTile;
 import com.game.omino.scene.tiles.ScalaTile;
 import com.game.omino.scene.tiles.Tile;
 
@@ -44,9 +45,15 @@ public class GameWorld {
 
 
        //applico gravità se l'area è libera...
-        if (level.isFreeArea(omino.getY()+(-1)*GRAVITY, omino.getX())) {
-            omino.setFalling(true);
-            omino.setY(omino.getY() + (-1)*GRAVITY); //(gravità negativa)
+        Tile t = level.getArea(omino.getY()+ omino.getH(), omino.getX()).get(0);
+        if(t != null){
+            if(t instanceof NullTile){
+                omino.setFalling(true);
+                omino.setY(omino.getY() + GRAVITY);
+            }else{ //Mattonetile o ScalaTile
+                omino.setFalling(false);
+                omino.setY(t.getY()-omino.getH());//se è in caduta in prossimità del suolo
+            }
         }else{
             omino.setFalling(false);
         }
@@ -71,4 +78,23 @@ public class GameWorld {
     }
 
 
+    public void cancelTile(int y, int x) {
+//        List<Tile> col = level.getColumn(x/TILE_SIZE);
+//        if(col != null){
+//            Tile t = col.get(y/TILE_SIZE);
+//            if(t instanceof MattoneTile && col.get((y-TILE_SIZE)/TILE_SIZE) instanceof NullTile){
+//                col.set(y/TILE_SIZE, new NullTile(t.getX(), t.getY(), t.getW(), t.getH()));
+//            }
+//        }
+
+        List<Tile> rowUp = level.getRow(y-TILE_SIZE);
+        List<Tile> rowDown = level.getRow(y);
+        if(rowDown != null){
+            Tile tD = rowDown.get(x/TILE_SIZE);
+            Tile tU = rowUp.get(x/TILE_SIZE);
+            if(tD instanceof MattoneTile && tU instanceof NullTile) {
+                rowDown.set(x/TILE_SIZE, new NullTile(tD.getX(), tD.getY(), tD.getW(), tD.getH()));
+            }
+        }
+    }
 }

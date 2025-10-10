@@ -214,7 +214,7 @@ Java_com_game_omino_render_GameRenderer_nativeInit(JNIEnv* env, jclass, jobject 
     textures["scala"]      = loadTextureFromAsset("tiles/scala.png");
 
     //init Omino
-    omino = { {0.0f, 0.0f}, "omino_idle_dx", 0, 0.0f, 0.1f };
+    omino = { {0.0f, 0.0f}, "omino_idle_dx", 1, 0.0f, 0.1f };
 
     glEnable(GL_BLEND);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -277,7 +277,7 @@ static void changeFrameSetOmino(int maxIdx) {
        if(omino.currentFrame < maxIdx){
            omino.currentFrame++;
        }else {
-           omino.currentFrame = 0;
+           omino.currentFrame = 1;
        }
        omino.animationTime = 0.0f; // Resetta il tempo
    }
@@ -296,8 +296,6 @@ Java_com_game_omino_render_GameRenderer_nativeRender(JNIEnv* env, jclass) {
 
 
     //__android_log_print(ANDROID_LOG_DEBUG, "omino", "Current Animation: %s", ominoAn.currentAnimation.c_str());
-   // __android_log_print(ANDROID_LOG_DEBUG, "omino", "Omino Position: (%f, %f)", ominoAn.pos.x, ominoAn.pos.y);
-
 
     std::string key = "";
     if(omino.currentAn == "omino_run_dx"
@@ -312,6 +310,9 @@ Java_com_game_omino_render_GameRenderer_nativeRender(JNIEnv* env, jclass) {
     }else { //omino_idle_dx; omino_idle_sx; omino_falling;
             key = omino.currentAn;
     }
+
+    //__android_log_print(ANDROID_LOG_DEBUG, "omino", "texture key: (%s)", key.c_str());
+
 
     // Disegna il frame corrente dell'animazione
     drawQuad(textures[key], omino.pos.x, omino.pos.y);

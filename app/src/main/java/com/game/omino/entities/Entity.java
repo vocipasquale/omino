@@ -18,6 +18,8 @@ public abstract class Entity {
     protected Tile[] tilesOverlapping = new Tile[2]; //[0] tile sopra (Yt < Ye), [1] tile sotto (Y
 
     protected boolean falling = false; //sta cadendo
+    protected boolean running = false; //sta cadendo
+
     protected String currentAnimation;
     // protected boolean onMattone = false;
    // protected boolean onScala = false;
@@ -72,9 +74,6 @@ public abstract class Entity {
         this.h = h;
     }
 
-    public boolean isFalling() {
-        return falling;
-    }
 
     public void setFalling(boolean falling) {
         this.falling = falling;
@@ -126,17 +125,4 @@ public abstract class Entity {
         this.currentAnimation=currentAnimation;
     }
 
-
-
-//    public boolean isOnTiles() {
-//        setTilesDown(GameWorld.getInstance().getLevel().getTilesDown(this));
-//
-//        return tilesDown[0] != null && !(tilesDown[0] instanceof NullTile);
-//    }
-//
-//    public boolean isOverTiles() {
-//        setTilesOverlapping(GameWorld.getInstance().getLevel().getTilesOverlapping(this));
-//
-//        return tilesOverlapping[0] != null && !(tilesOverlapping[0] instanceof NullTile);
-//    }
 }

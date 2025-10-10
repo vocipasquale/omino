@@ -11,9 +11,8 @@ import static com.game.omino.utils.Constants.*;
 
 public class Level {
     private List<List<Tile>> tiles = new ArrayList<>(); //new Tile[SCREEN_HEIGHT][SCREEN_WIDTH];
-    private List<MattoneTile> mattoni = new ArrayList<>();
-    private List<ScalaTile> scale = new ArrayList<>();
-    private List<Nemico> nemici = new ArrayList<>();
+    private List<ScalaTile> scale = new ArrayList<>(); //le scal in un livello non cambiano mai!
+//    private List<Nemico> nemici = new ArrayList<>();
 
     private Omino omino = new Omino(0,0,TILE_SIZE,TILE_SIZE);
 
@@ -29,7 +28,6 @@ public class Level {
                 if(tilesMatrix[r][c] instanceof MattoneTile){
                     mattoneInstance = (MattoneTile) tilesMatrix[r][c];
                     row.add(mattoneInstance);
-                    mattoni.add(mattoneInstance); //temporaneo fino a quando non capisco come usare la matrice...
                 } else if(tilesMatrix[r][c] instanceof ScalaTile){
                     scalaInstance = (ScalaTile) tilesMatrix[r][c];
                     row.add(scalaInstance);
@@ -62,6 +60,7 @@ public class Level {
     }
 
     public float[] getMattonePositionsFlat() {
+        List<MattoneTile> mattoni = getMattoni();
         float[] arr = new float[mattoni.size() * 2];
         for (int i = 0; i < mattoni.size(); i++) {
             arr[i * 2] = mattoni.get(i).getX();
@@ -79,23 +78,28 @@ public class Level {
         return arr;
     }
 
+//    public void setTile(Tile tile, int y, int x){
+////        if(tile != null && y%TILE_SIZE == 0 && x%TILE_SIZE == 0){
+////            tiles.get(y/TILE_SIZE)
+////        }
+//    }
+
+//    public void setRow(List<Tile> row, int y){
+//        if(row != null && y%TILE_SIZE == 0){
+//            tiles.set(y/TILE_SIZE, row);
+//        }
+//    }
 
     public List<Tile> getRow(int y){
-        if(y%TILE_SIZE == 0){
-            return tiles.get(y%TILE_SIZE);
-        }
-        return null;
+       return tiles.get(y/TILE_SIZE);
     }
 
     public List<Tile> getColumn(int x){
-        if(x%TILE_SIZE == 0){
             List<Tile> col = new ArrayList<>();
             for(List<Tile> row:tiles){
-                col.add(row.get(x%TILE_SIZE));
+                col.add(row.get(x/TILE_SIZE));
             }
             return col;
-        }
-        return null;
     }
 
     /**
@@ -126,7 +130,7 @@ public class Level {
 
     public Tile[] getTilesDown(Entity entity){
         Tile[] result = new Tile[2];
-        List<Tile> row = getRow(entity.getY()+entity.getH());
+        List<Tile> row = getRow((entity.getY()+entity.getH())/TILE_SIZE);
         int c = 0;
 
         if(row != null) {
@@ -180,5 +184,17 @@ public class Level {
 
     public Omino getOmino(){
         return omino;
+    }
+
+    private List<MattoneTile> getMattoni(){
+        List<MattoneTile> result = new ArrayList<>();
+        tiles.forEach(r -> {
+            r.forEach(c -> {
+                if(c instanceof MattoneTile){
+                    result.add((MattoneTile) c);
+                }
+            });
+        });
+        return result;
     }
 }

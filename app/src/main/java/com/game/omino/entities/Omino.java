@@ -1,5 +1,6 @@
 package com.game.omino.entities;
 
+import android.util.Log;
 import com.game.omino.engine.GameWorld;
 import com.game.omino.scene.tiles.MattoneTile;
 import com.game.omino.scene.tiles.NullTile;
@@ -18,22 +19,27 @@ public class Omino extends Entity {
     private static final String RUN_DX_TX = "omino_run_dx";
     private static final String RUN_SX_TX = "omino_run_sx";
 
+    private boolean dx = true;
+
 
     public Omino(int x, int y, int w, int h){
         super(IDLE_DX_TX, x, y, w, h);
+        dx = true;
     }
 
     @Override
     public void su() {
-        setTilesOverlapping(GameWorld.getInstance().getLevel().getTilesOverlapping(this));
-        if(tilesOverlapping[0] != null) {
-            x = tilesOverlapping[0].getX(); //tilesOverlapping[0] scalaTile superiore
-            if(GameWorld.getInstance().getLevel().isFreeArea(y-STEP, tilesOverlapping[0].getX())){
-               y = tilesOverlapping[0].getY() - h;
-            }else{
-                y -= STEP;
+        if(!falling) {
+            setTilesOverlapping(GameWorld.getInstance().getLevel().getTilesOverlapping(this));
+            if (tilesOverlapping[0] != null) {
+                x = tilesOverlapping[0].getX(); //tilesOverlapping[0] scalaTile superiore
+                if (GameWorld.getInstance().getLevel().isFreeArea(y - STEP, tilesOverlapping[0].getX())) {
+                    y = tilesOverlapping[0].getY() - h;
+                } else {
+                    y -= STEP;
+                }
+                currentAnimation = RUN_DX_TX;
             }
-            currentAnimation = RUN_DX_TX;
         }
     }
 
@@ -42,15 +48,17 @@ public class Omino extends Entity {
      */
     @Override
     public void giu() {
-            List<Tile> area = GameWorld.getInstance().getLevel().getArea(y+h+STEP, x+(w/2));
+        if(!falling) {
+            List<Tile> area = GameWorld.getInstance().getLevel().getArea(y + h + STEP, x + (w / 2));
             Tile t = area.get(0); //nullsafe!
-            if(Math.abs(x-t.getX())<TILE_SIZE/5){
-                if(!(t instanceof MattoneTile)){//se non è mattone può essere solo ScalaTile o NullTile
+            if (Math.abs(x - t.getX()) < TILE_SIZE / 5) {
+                if (!(t instanceof MattoneTile)) {//se non è mattone può essere solo ScalaTile o NullTile
                     x = t.getX(); //allineamento...
                     y += STEP;
                     currentAnimation = RUN_SX_TX;
                 }
             }
+        }
     }
 
     @Override
@@ -63,6 +71,7 @@ public class Omino extends Entity {
                 x -= STEP;
             }
             currentAnimation = RUN_SX_TX;
+            dx=false;
         }
 
     }
@@ -77,6 +86,7 @@ public class Omino extends Entity {
                 x += STEP;
             }
             currentAnimation = RUN_DX_TX;
+            dx=true;
         }
     }
 
@@ -98,6 +108,17 @@ public class Omino extends Entity {
     @Override
     public void stopSinistra() {
         currentAnimation = IDLE_SX_TX;
+    }
+
+    public void fire(){
+       // Log.d("Omino", "fireeeeeeeeeeeeeeeeeeeeeee");
+        if(dx){
+            GameWorld.getInstance().cancelTile(y+h, x+w);
+        }else{
+            GameWorld.getInstance().cancelTile(y+h, x-w);
+        }
+
+
     }
 
 }
