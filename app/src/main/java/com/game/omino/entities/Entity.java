@@ -79,6 +79,9 @@ public abstract class Entity {
         this.falling = falling;
     }
 
+    public boolean isFalling() {
+        return falling;
+    }
 
     public void setTilesOverlapping(Tile[] overlappingScala) {
         this.tilesOverlapping = overlappingScala;

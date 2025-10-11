@@ -85,6 +85,7 @@ public class Omino extends Entity {
             }else{
                 x += STEP;
             }
+
             currentAnimation = RUN_DX_TX;
             dx=true;
         }

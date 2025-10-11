@@ -14,25 +14,25 @@ public class Level {
     private List<ScalaTile> scale = new ArrayList<>(); //le scal in un livello non cambiano mai!
 //    private List<Nemico> nemici = new ArrayList<>();
 
-    private Omino omino = new Omino(0,0,TILE_SIZE,TILE_SIZE);
+    private Omino omino = new Omino(0, 0, TILE_SIZE, TILE_SIZE);
 
-    public void setTilesMatrix(Tile[][] tilesMatrix){
+    public void setTilesMatrix(Tile[][] tilesMatrix) {
         MattoneTile mattoneInstance;
         ScalaTile scalaInstance;
         NullTile nullInstance;
         String riga = "";
 
-       for (int r=0; r<TILES_4_COLUMN; r++){
-           List<Tile> row = new ArrayList<>();
-            for(int c=0; c<TILES_4_ROW; c++) {
-                if(tilesMatrix[r][c] instanceof MattoneTile){
+        for (int r = 0; r < TILES_4_COLUMN; r++) {
+            List<Tile> row = new ArrayList<>();
+            for (int c = 0; c < TILES_4_ROW; c++) {
+                if (tilesMatrix[r][c] instanceof MattoneTile) {
                     mattoneInstance = (MattoneTile) tilesMatrix[r][c];
                     row.add(mattoneInstance);
-                } else if(tilesMatrix[r][c] instanceof ScalaTile){
+                } else if (tilesMatrix[r][c] instanceof ScalaTile) {
                     scalaInstance = (ScalaTile) tilesMatrix[r][c];
                     row.add(scalaInstance);
                     scale.add(scalaInstance);//temporaneo fino a quando non capisco come usare la matrice...
-                } else if(tilesMatrix[r][c] instanceof NullTile){
+                } else if (tilesMatrix[r][c] instanceof NullTile) {
                     nullInstance = (NullTile) tilesMatrix[r][c];
                     row.add(nullInstance);
                 }
@@ -41,20 +41,19 @@ public class Level {
         }
 
 
-        for (List<Tile> rowLog: tiles){
-            riga="";
-            for(Tile t: rowLog){
-                if(t instanceof MattoneTile){
-                    riga+="@ ("+t.getY()+", "+t.getX()+")\t\t";
-                }else if(t instanceof ScalaTile){
-                    riga+="# ("+t.getY()+", "+t.getX()+")\t\t";
-                }else if(t instanceof NullTile){
-                    riga+="- ("+t.getY()+", "+t.getX()+")\t\t";
+        for (List<Tile> rowLog : tiles) {
+            riga = "";
+            for (Tile t : rowLog) {
+                if (t instanceof MattoneTile) {
+                    riga += "@ (" + t.getY() + ", " + t.getX() + ")\t\t";
+                } else if (t instanceof ScalaTile) {
+                    riga += "# (" + t.getY() + ", " + t.getX() + ")\t\t";
+                } else if (t instanceof NullTile) {
+                    riga += "- (" + t.getY() + ", " + t.getX() + ")\t\t";
                 }
             }
             Log.i("riga: ", riga);
         }
-
 
 
     }
@@ -90,16 +89,16 @@ public class Level {
 //        }
 //    }
 
-    public List<Tile> getRow(int y){
-       return tiles.get(y/TILE_SIZE);
+    public List<Tile> getRow(int y) {
+        return tiles.get(y / TILE_SIZE);
     }
 
-    public List<Tile> getColumn(int x){
-            List<Tile> col = new ArrayList<>();
-            for(List<Tile> row:tiles){
-                col.add(row.get(x/TILE_SIZE));
-            }
-            return col;
+    public List<Tile> getColumn(int x) {
+        List<Tile> col = new ArrayList<>();
+        for (List<Tile> row : tiles) {
+            col.add(row.get(x / TILE_SIZE));
+        }
+        return col;
     }
 
     /**
@@ -109,38 +108,36 @@ public class Level {
      * @param x
      * @return
      */
-    public List<Tile> getArea(int y, int x){
+    public List<Tile> getArea(int y, int x) {
         List<Tile> area = new ArrayList<>();
-        area.add(tiles.get(y/TILE_SIZE).get(x/TILE_SIZE));
-        area.add(tiles.get(y/TILE_SIZE).get((x+TILE_SIZE)/TILE_SIZE));
-        area.add(tiles.get(((y+TILE_SIZE)/TILE_SIZE)).get(x/TILE_SIZE));
-        area.add(tiles.get(((y+TILE_SIZE)/TILE_SIZE)).get((x+TILE_SIZE)/TILE_SIZE));
+        area.add(tiles.get(y / TILE_SIZE).get(x / TILE_SIZE));
+        area.add(tiles.get(y / TILE_SIZE).get((x + TILE_SIZE) / TILE_SIZE));
+        area.add(tiles.get(((y + TILE_SIZE) / TILE_SIZE)).get(x / TILE_SIZE));
+        area.add(tiles.get(((y + TILE_SIZE) / TILE_SIZE)).get((x + TILE_SIZE) / TILE_SIZE));
         return area;
     }
 
-    public boolean isFreeArea(int y, int x){
+    public boolean isFreeArea(int y, int x) {
         boolean result = true;
-        List<Tile> area = getArea(y,x);
-        for(int t=0; t<area.size() && result; t++){
+        List<Tile> area = getArea(y, x);
+        for (int t = 0; t < area.size() && result; t++) {
             result = area.get(t) instanceof NullTile;
         }
         return result;
     }
 
 
-    public Tile[] getTilesDown(Entity entity){
+    public Tile[] getTilesDown(Entity entity) {
         Tile[] result = new Tile[2];
-        List<Tile> row = getRow((entity.getY()+entity.getH())/TILE_SIZE);
+        List<Tile> row = getRow((entity.getY() + entity.getH()));
         int c = 0;
 
-        if(row != null) {
-            for (int t = 0; t < row.size() && c < 2; t += TILE_SIZE) {
-                if (row.get(t).getY() == entity.getY() + entity.getH()
-                        && Math.abs(entity.getX() - row.get(t).getX()) < row.get(t).getW()) {
-                    result[c++] = row.get(t);
-                }
+        for (int t = 0; t < row.size() && c < 2; t++) {
+            if (Math.abs(entity.getX() - row.get(t).getX()) < TILE_SIZE) {
+                result[c++] = row.get(t);
             }
         }
+
         return result;
     }
 
@@ -151,19 +148,18 @@ public class Level {
      * @return
      */
     public Tile[] getTilesOverlapping(Entity entity) {
-        int t=0;
+        int t = 0;
         Tile[] result = new Tile[2];
         List<Tile> area = getArea(entity.getY(), entity.getX());
-        for(int i=0; i<area.size(); i++){
-            if(area.get(i) instanceof ScalaTile
-                    && ((Math.abs(entity.getX()-area.get(i).getX()) < TILE_SIZE/5)
-                    || (Math.abs(entity.getX()+TILE_SIZE-area.get(i).getX()) < TILE_SIZE/5))){
-                result[t++]=area.get(i);
+        for (int i = 0; i < area.size(); i++) {
+            if (area.get(i) instanceof ScalaTile
+                    && ((Math.abs(entity.getX() - area.get(i).getX()) < TILE_SIZE / 5)
+                    || (Math.abs(entity.getX() + TILE_SIZE - area.get(i).getX()) < TILE_SIZE / 5))) {
+                result[t++] = area.get(i);
             }
         }
         return result;
     }
-
 
 
     /**
@@ -174,23 +170,23 @@ public class Level {
      * @param x
      * @return
      */
-    public Tile getExactTile(int y, int x){
-        if(y % TILE_SIZE == 0 && x % TILE_SIZE == 0){ //y e x multipli di TILE_SIZE
+    public Tile getExactTile(int y, int x) {
+        if (y % TILE_SIZE == 0 && x % TILE_SIZE == 0) { //y e x multipli di TILE_SIZE
             return tiles.get(y).get(x);
         }
         return null;
     }
 
 
-    public Omino getOmino(){
+    public Omino getOmino() {
         return omino;
     }
 
-    private List<MattoneTile> getMattoni(){
+    private List<MattoneTile> getMattoni() {
         List<MattoneTile> result = new ArrayList<>();
         tiles.forEach(r -> {
             r.forEach(c -> {
-                if(c instanceof MattoneTile){
+                if (c instanceof MattoneTile) {
                     result.add((MattoneTile) c);
                 }
             });

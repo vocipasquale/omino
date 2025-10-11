@@ -28,7 +28,9 @@ public class GameWorld {
         return instance;
     }
 
-    public Omino getOmino() { return omino; }
+    public Omino getOmino() {
+        return omino;
+    }
 
     public Level getLevel() {
         return level;
@@ -39,37 +41,42 @@ public class GameWorld {
         if (omino.getY() > SCREEN_HEIGHT - omino.getH()) {
             omino.setY(SCREEN_HEIGHT - omino.getH());
             return;
+
+            /**
+             * qui lanciare eccezione o gestione GAME OVER!!!!
+             */
         }
         // omino è dentro la schermata...
 
+        //applico gravità se l'area è libera...
+        List<Tile> area = level.getArea(omino.getY() + omino.getH(), omino.getX());
+        Tile t;
 
-
-       //applico gravità se l'area è libera...
-        Tile t = level.getArea(omino.getY()+ omino.getH(), omino.getX()).get(0);
-        if(t != null){
-            if(t instanceof NullTile){
-                omino.setFalling(true);
-                omino.setY(omino.getY() + GRAVITY);
-            }else{ //Mattonetile o ScalaTile
-                omino.setFalling(false);
-                omino.setY(t.getY()-omino.getH());//se è in caduta in prossimità del suolo
+        boolean trovato = false;
+        for (int i = 0; i < 2 && !trovato; i++) {
+            t = area.get(i);
+            if (t instanceof NullTile) {
+                if (Math.abs(t.getX() - omino.getX()) <= TILE_SIZE / 4) {
+                    omino.setX(t.getX()); //allineamento
+                    omino.setFalling(true);
+                    omino.setY(omino.getY() + GRAVITY);
+                    trovato = true;
+                }
+            } else {//Mattonetile o ScalaTile
+                if (omino.isFalling()) {
+                    omino.setY(t.getY() - omino.getH());//se è in caduta in prossimità del suolo
+                    omino.setFalling(false);
+                }
             }
-        }else{
-            omino.setFalling(false);
         }
-
-
 
 
         //se collide con nemico
-        if(false){
+        if (false) {
             //...
         }
 
-
     }
-
-
 
 
     public void loadLevel(Level level) {
@@ -87,14 +94,15 @@ public class GameWorld {
 //            }
 //        }
 
-        List<Tile> rowUp = level.getRow(y-TILE_SIZE);
         List<Tile> rowDown = level.getRow(y);
-        if(rowDown != null){
-            Tile tD = rowDown.get(x/TILE_SIZE);
-            Tile tU = rowUp.get(x/TILE_SIZE);
-            if(tD instanceof MattoneTile && tU instanceof NullTile) {
-                rowDown.set(x/TILE_SIZE, new NullTile(tD.getX(), tD.getY(), tD.getW(), tD.getH()));
-            }
+        if (x % TILE_SIZE >= TILE_SIZE / 10) {
+            x += TILE_SIZE;
+        }
+
+        Tile tFD = rowDown.get(x / TILE_SIZE);
+        Tile tF = level.getRow(y - TILE_SIZE).get(x / TILE_SIZE);
+        if (tFD instanceof MattoneTile && tF instanceof NullTile) {
+            rowDown.set(x / TILE_SIZE, new NullTile(tFD.getX(), tFD.getY(), tFD.getW(), tFD.getH()));
         }
     }
 }
