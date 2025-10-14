@@ -18,11 +18,8 @@ public abstract class Entity {
     protected Tile[] tilesOverlapping = new Tile[2]; //[0] tile sopra (Yt < Ye), [1] tile sotto (Y
 
     protected boolean falling = false; //sta cadendo
-    protected boolean running = false; //sta cadendo
 
     protected String currentAnimation;
-    // protected boolean onMattone = false;
-   // protected boolean onScala = false;
 
 
     public Entity(String currentAnimation, int x, int y, int w, int h){

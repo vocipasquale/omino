@@ -16,8 +16,14 @@ public class Omino extends Entity {
 
     private static final String IDLE_DX_TX = "omino_idle_dx";
     private static final String IDLE_SX_TX = "omino_idle_sx";
+    private static final String IDLE_UP_TX = "omino_idle_up";
     private static final String RUN_DX_TX = "omino_run_dx";
     private static final String RUN_SX_TX = "omino_run_sx";
+    private static final String RUN_UP_TX = "omino_run_up";
+    private static final String RUN_DOWN_TX = "omino_run_down";
+    private static final String FALLING_TX = "omino_falling";
+
+
 
     private boolean dx = true;
 
@@ -38,8 +44,10 @@ public class Omino extends Entity {
                 } else {
                     y -= STEP;
                 }
-                currentAnimation = RUN_DX_TX;
+                currentAnimation = RUN_UP_TX;
             }
+        }else {
+            currentAnimation = FALLING_TX;
         }
     }
 
@@ -55,9 +63,13 @@ public class Omino extends Entity {
                 if (!(t instanceof MattoneTile)) {//se non è mattone può essere solo ScalaTile o NullTile
                     x = t.getX(); //allineamento...
                     y += STEP;
-                    currentAnimation = RUN_SX_TX;
+                    currentAnimation = RUN_DOWN_TX;
+                }else{
+                    y = t.getY()-h; //mi fermo sul mattone
                 }
             }
+        }else {
+            currentAnimation = FALLING_TX;
         }
     }
 
@@ -72,6 +84,8 @@ public class Omino extends Entity {
             }
             currentAnimation = RUN_SX_TX;
             dx=false;
+        }else {
+            currentAnimation = FALLING_TX;
         }
 
     }
@@ -85,20 +99,21 @@ public class Omino extends Entity {
             }else{
                 x += STEP;
             }
-
             currentAnimation = RUN_DX_TX;
             dx=true;
+        }else {
+            currentAnimation = FALLING_TX;
         }
     }
 
     @Override
     public void stopSu() {
-        currentAnimation = IDLE_DX_TX;
+        currentAnimation = IDLE_UP_TX;
     }
 
     @Override
     public void stopGiu() {
-        currentAnimation = IDLE_SX_TX;
+        currentAnimation = IDLE_UP_TX;
     }
 
     @Override
@@ -118,7 +133,6 @@ public class Omino extends Entity {
         }else{
             GameWorld.getInstance().cancelTile(y+h, x-w);
         }
-
 
     }
 

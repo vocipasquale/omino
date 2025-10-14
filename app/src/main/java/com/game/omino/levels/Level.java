@@ -3,6 +3,7 @@ package com.game.omino.levels;
 import android.util.Log;
 import com.game.omino.entities.*;
 import com.game.omino.scene.tiles.*;
+import com.game.omino.utils.NemicoData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,11 +13,17 @@ import static com.game.omino.utils.Constants.*;
 public class Level {
     private List<List<Tile>> tiles = new ArrayList<>(); //new Tile[SCREEN_HEIGHT][SCREEN_WIDTH];
     private List<ScalaTile> scale = new ArrayList<>(); //le scal in un livello non cambiano mai!
-//    private List<Nemico> nemici = new ArrayList<>();
+    private List<Nemico> nemici;
 
-    private Omino omino = new Omino(0, 0, TILE_SIZE, TILE_SIZE);
+    private Omino omino;
 
-    public void setTilesMatrix(Tile[][] tilesMatrix) {
+    public Level(Omino omino, List<Nemico> nemici, Tile[][] tilesMatrix) {
+        this.nemici = nemici;
+        this.omino = omino;
+        setTilesMatrix(tilesMatrix);
+    }
+
+    private void setTilesMatrix(Tile[][] tilesMatrix) {
         MattoneTile mattoneInstance;
         ScalaTile scalaInstance;
         NullTile nullInstance;
@@ -77,17 +84,15 @@ public class Level {
         return arr;
     }
 
-//    public void setTile(Tile tile, int y, int x){
-////        if(tile != null && y%TILE_SIZE == 0 && x%TILE_SIZE == 0){
-////            tiles.get(y/TILE_SIZE)
-////        }
-//    }
-
-//    public void setRow(List<Tile> row, int y){
-//        if(row != null && y%TILE_SIZE == 0){
-//            tiles.set(y/TILE_SIZE, row);
-//        }
-//    }
+    public NemicoData[] getNemiciPositionsFlat(){
+        NemicoData[] result = new NemicoData[nemici.size()];
+        Nemico nem;
+        for (int n=0; n<nemici.size(); n++){
+            nem = nemici.get(n);
+            result[n]=new NemicoData(nem.getX(), nem.getY(), nem.getCurrentAnimation());
+        }
+        return result;
+    }
 
     public List<Tile> getRow(int y) {
         return tiles.get(y / TILE_SIZE);
@@ -192,5 +197,9 @@ public class Level {
             });
         });
         return result;
+    }
+
+    public List<Nemico> getNemici() {
+        return nemici;
     }
 }

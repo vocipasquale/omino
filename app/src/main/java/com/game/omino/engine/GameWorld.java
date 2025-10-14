@@ -1,15 +1,14 @@
 package com.game.omino.engine;
 
-import android.util.Log;
+import android.os.Handler;
 import com.game.omino.entities.Entity;
+import com.game.omino.entities.Nemico;
 import com.game.omino.entities.Omino;
 import com.game.omino.levels.Level;
 import com.game.omino.scene.tiles.MattoneTile;
 import com.game.omino.scene.tiles.NullTile;
-import com.game.omino.scene.tiles.ScalaTile;
 import com.game.omino.scene.tiles.Tile;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.game.omino.utils.Constants.*;
@@ -42,38 +41,44 @@ public class GameWorld {
             omino.setY(SCREEN_HEIGHT - omino.getH());
             return;
 
-            /**
-             * qui lanciare eccezione o gestione GAME OVER!!!!
-             */
         }
         // omino è dentro la schermata...
 
         //applico gravità se l'area è libera...
-        List<Tile> area = level.getArea(omino.getY() + omino.getH(), omino.getX());
+        gravita(omino);
+
+        for(Nemico n: level.getNemici()){
+            gravita(n);
+            n.aggiorna();
+        }
+
+        //se collide con nemico
+        if (false) {
+            //...
+        }
+
+    }
+
+    private void gravita(Entity entity){
+        List<Tile> area = level.getArea(entity.getY() + entity.getH(), entity.getX());
         Tile t;
 
         boolean trovato = false;
         for (int i = 0; i < 2 && !trovato; i++) {
             t = area.get(i);
             if (t instanceof NullTile) {
-                if (Math.abs(t.getX() - omino.getX()) <= TILE_SIZE / 4) {
-                    omino.setX(t.getX()); //allineamento
-                    omino.setFalling(true);
-                    omino.setY(omino.getY() + GRAVITY);
+                if (Math.abs(t.getX() - entity.getX()) <= TILE_SIZE / 4) {
+                    entity.setX(t.getX()); //allineamento
+                    entity.setFalling(true);
+                    entity.setY(entity.getY() + GRAVITY);
                     trovato = true;
                 }
             } else {//Mattonetile o ScalaTile
-                if (omino.isFalling()) {
-                    omino.setY(t.getY() - omino.getH());//se è in caduta in prossimità del suolo
-                    omino.setFalling(false);
+                if (entity.isFalling()) {//se è in caduta in prossimità del suolo
+                    entity.setY(t.getY() - entity.getH());
+                    entity.setFalling(false);
                 }
             }
-        }
-
-
-        //se collide con nemico
-        if (false) {
-            //...
         }
 
     }
@@ -86,23 +91,25 @@ public class GameWorld {
 
 
     public void cancelTile(int y, int x) {
-//        List<Tile> col = level.getColumn(x/TILE_SIZE);
-//        if(col != null){
-//            Tile t = col.get(y/TILE_SIZE);
-//            if(t instanceof MattoneTile && col.get((y-TILE_SIZE)/TILE_SIZE) instanceof NullTile){
-//                col.set(y/TILE_SIZE, new NullTile(t.getX(), t.getY(), t.getW(), t.getH()));
-//            }
-//        }
-
         List<Tile> rowDown = level.getRow(y);
         if (x % TILE_SIZE >= TILE_SIZE / 10) {
             x += TILE_SIZE;
         }
 
-        Tile tFD = rowDown.get(x / TILE_SIZE);
-        Tile tF = level.getRow(y - TILE_SIZE).get(x / TILE_SIZE);
+        int finalX = x;
+        Tile tFD = rowDown.get(finalX / TILE_SIZE);
+        Tile tF = level.getRow(y - TILE_SIZE).get(finalX / TILE_SIZE);
         if (tFD instanceof MattoneTile && tF instanceof NullTile) {
-            rowDown.set(x / TILE_SIZE, new NullTile(tFD.getX(), tFD.getY(), tFD.getW(), tFD.getH()));
+            rowDown.set(finalX / TILE_SIZE, new NullTile(tFD.getX(), tFD.getY(), tFD.getW(), tFD.getH()));
+
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    // Annulla l'operazione ripristinando il tile originale
+                    rowDown.set(finalX / TILE_SIZE, tFD);
+                }
+            }, SEC_ERASE_MATTONE*1000);
         }
     }
 }
