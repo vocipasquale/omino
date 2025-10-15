@@ -25,12 +25,12 @@ public class Omino extends Entity {
 
 
 
-    private boolean dx = true;
+    //private boolean dx = true;
 
 
     public Omino(int x, int y, int w, int h){
         super(IDLE_DX_TX, x, y, w, h);
-        dx = true;
+        //dx = true;
     }
 
     @Override
@@ -83,7 +83,7 @@ public class Omino extends Entity {
                 x -= STEP;
             }
             currentAnimation = RUN_SX_TX;
-            dx=false;
+            //dx=false;
         }else {
             currentAnimation = FALLING_TX;
         }
@@ -100,7 +100,7 @@ public class Omino extends Entity {
                 x += STEP;
             }
             currentAnimation = RUN_DX_TX;
-            dx=true;
+            //dx=true;
         }else {
             currentAnimation = FALLING_TX;
         }
@@ -126,14 +126,9 @@ public class Omino extends Entity {
         currentAnimation = IDLE_SX_TX;
     }
 
-    public void fire(){
+    public void fire(boolean dx){
        // Log.d("Omino", "fireeeeeeeeeeeeeeeeeeeeeee");
-        if(dx){
-            GameWorld.getInstance().cancelTile(y+h, x+w);
-        }else{
-            GameWorld.getInstance().cancelTile(y+h, x-w);
-        }
-
+       GameWorld.getInstance().cancelTile(dx);
     }
 
 }

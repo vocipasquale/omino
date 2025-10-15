@@ -3,7 +3,7 @@ package com.game.omino.levels;
 import android.util.Log;
 import com.game.omino.entities.*;
 import com.game.omino.scene.tiles.*;
-import com.game.omino.utils.NemicoData;
+import com.game.omino.utils.DataUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +15,7 @@ public class Level {
     private List<ScalaTile> scale = new ArrayList<>(); //le scal in un livello non cambiano mai!
     private List<Nemico> nemici;
 
+
     private Omino omino;
 
     public Level(Omino omino, List<Nemico> nemici, Tile[][] tilesMatrix) {
@@ -22,6 +23,7 @@ public class Level {
         this.omino = omino;
         setTilesMatrix(tilesMatrix);
     }
+
 
     private void setTilesMatrix(Tile[][] tilesMatrix) {
         MattoneTile mattoneInstance;
@@ -75,6 +77,17 @@ public class Level {
         return arr;
     }
 
+//    public DataUtil[] getMattoneAnimationFlat(){
+//        List<MattoneTile> mattoni = getMattoni();
+//        DataUtil[] result = new DataUtil[mattoni.size()];
+//        MattoneTile matt;
+//        for (int m=0; m<mattoni.size(); m++){
+//            matt = mattoni.get(m);
+//            result[m]=new DataUtil(matt.getX(), matt.getY(), matt.getCurrentAnimation());
+//        }
+//        return result;
+//    }
+
     public float[] getScalaPositionsFlat() {
         float[] arr = new float[scale.size() * 2];
         for (int i = 0; i < scale.size(); i++) {
@@ -84,12 +97,12 @@ public class Level {
         return arr;
     }
 
-    public NemicoData[] getNemiciPositionsFlat(){
-        NemicoData[] result = new NemicoData[nemici.size()];
+    public DataUtil[] getNemiciPositionsFlat(){
+        DataUtil[] result = new DataUtil[nemici.size()];
         Nemico nem;
         for (int n=0; n<nemici.size(); n++){
             nem = nemici.get(n);
-            result[n]=new NemicoData(nem.getX(), nem.getY(), nem.getCurrentAnimation());
+            result[n]=new DataUtil(nem.getX(), nem.getY(), nem.getCurrentAnimation());
         }
         return result;
     }

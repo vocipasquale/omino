@@ -1,5 +1,6 @@
 package com.game.omino.app;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import android.os.Handler;
@@ -25,6 +26,7 @@ public class OminoGameActivity extends AppCompatActivity {
 	// Handler a livello di classe (main thread)
 	private final Handler handler = new Handler(Looper.getMainLooper());
 
+	@SuppressLint("MissingInflatedId")
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -77,7 +79,20 @@ public class OminoGameActivity extends AppCompatActivity {
 				})
 		);
 
-		findViewById(R.id.button_center).setOnTouchListener(makeFireListener());
+		//findViewById(R.id.button_center).setOnTouchListener(makeFireListener());
+		findViewById(R.id.button_fire_left).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				GameWorld.getInstance().getOmino().fire(false); // Chiama fire() per il pulsante sinistro
+			}
+		});
+
+		findViewById(R.id.button_fire_right).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				GameWorld.getInstance().getOmino().fire(true); // Chiama fire() per il pulsante destro
+			}
+		});
 
 	}
 
@@ -142,26 +157,26 @@ public class OminoGameActivity extends AppCompatActivity {
 	}
 
 
-	private View.OnTouchListener makeFireListener() {
-		return new View.OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				switch (event.getAction()) {
-					case MotionEvent.ACTION_DOWN:
-						// Chiama fire() solo al click
-						GameWorld.getInstance().getOmino().fire();
-						v.setPressed(true);
-						return true;
-
-					case MotionEvent.ACTION_UP:
-					case MotionEvent.ACTION_CANCEL:
-						v.setPressed(false);
-						return true;
-				}
-				return false;
-			}
-		};
-	}
+//	private View.OnTouchListener makeFireListener() {
+//		return new View.OnTouchListener() {
+//			@Override
+//			public boolean onTouch(View v, MotionEvent event) {
+//				switch (event.getAction()) {
+//					case MotionEvent.ACTION_DOWN:
+//						// Chiama fire() solo al click
+//						GameWorld.getInstance().getOmino().fire();
+//						v.setPressed(true);
+//						return true;
+//
+//					case MotionEvent.ACTION_UP:
+//					case MotionEvent.ACTION_CANCEL:
+//						v.setPressed(false);
+//						return true;
+//				}
+//				return false;
+//			}
+//		};
+//	}
 
 
 	@Override

@@ -7,11 +7,11 @@ public interface Constants {
     public static final long REPEAT_DELAY_MS = 80L;  // intervallo movimento continuo (ms)
     public static final int GRAVITY = STEP/5;
     public static final int TILES_4_ROW = 18;
-    public static final int TILES_4_COLUMN = 29;
+    public static final int TILES_4_COLUMN = 27;
     public static final int SCREEN_WIDTH = TILES_4_ROW * TILE_SIZE;
     public static final int SCREEN_HEIGHT = TILES_4_COLUMN * TILE_SIZE;
-    public static final int MIN_DIST_OVERLLAPPING_SCALA = TILE_SIZE/5; //+ o - il 10%
+    public static final int TOLERANCE = 20; //20 pixel
 
-    public static final int SEC_ERASE_MATTONE = 10; //numero di secondi per il quale il mattone deve rimanere cancellato
+    public static final long SEC_ERASE_MATTONE = 10000; //numero di secondi per il quale il mattone deve rimanere cancellato
 
 }

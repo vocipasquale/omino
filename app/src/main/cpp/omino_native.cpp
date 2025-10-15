@@ -88,10 +88,14 @@ struct Scala {
     std::string textureKey;
 };
 
+struct Mattone {
+    Vec2 pos;
+    std::string textureKey;
+};
 
 static Entity omino;
 static std::vector<Entity> nemici;
-static std::vector<Entity> mattoni;
+static std::vector<Mattone> mattoni;
 static std::vector<Scala> scale;
 
 // Gestione textures
@@ -290,6 +294,7 @@ Java_com_game_omino_render_GameRenderer_nativeSetNemiciPositions(JNIEnv* env, jc
     }
 }
 
+
 extern "C" JNIEXPORT void JNICALL
 Java_com_game_omino_render_GameRenderer_nativeSetMattonePositions(JNIEnv* env, jclass, jfloatArray arr) {
     jsize len = env->GetArrayLength(arr);
@@ -300,6 +305,72 @@ Java_com_game_omino_render_GameRenderer_nativeSetMattonePositions(JNIEnv* env, j
     }
     env->ReleaseFloatArrayElements(arr, data, 0);
 }
+
+/*
+extern "C" JNIEXPORT void JNICALL
+Java_com_game_omino_render_GameRenderer_nativeSetMattonePositions(JNIEnv* env, jclass, jobjectArray positions) {
+    jsize length = env->GetArrayLength(positions);
+    mattoni.clear();
+
+    for (jsize i = 0; i < length; i++) {
+        jobject mattoneData = env->GetObjectArrayElement(positions, i);
+        jclass mattoneClass = env->GetObjectClass(mattoneData);
+
+        // Ottieni i campi x, y e str
+        jfieldID xField = env->GetFieldID(mattoneClass, "x", "F");
+        jfieldID yField = env->GetFieldID(mattoneClass, "y", "F");
+        jfieldID strField = env->GetFieldID(mattoneClass, "currentAn", "Ljava/lang/String;");
+
+        // Estrai i valori
+        float x = env->GetFloatField(mattoneData, xField);
+        float y = env->GetFloatField(mattoneData, yField);
+        jstring str = (jstring) env->GetObjectField(mattoneData, strField);
+
+        // Converti la stringa in std::string
+        const char* strChars = env->GetStringUTFChars(str, nullptr);
+        std::string currentAnimation(strChars);
+        env->ReleaseStringUTFChars(str, strChars); // Rilascia la memoria
+
+        Entity newMattone = {{x, y}, currentAnimation, 1, 0.0f, 0.1f}; // Imposta i valori di default
+        mattoni.push_back(newMattone);
+
+        // Rilascia il riferimento all'oggetto nemico
+        env->DeleteLocalRef(mattoneData);
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_game_omino_render_GameRenderer_nativeSetMattoneAnimations(JNIEnv* env, jclass, jobjectArray positions) {
+    jsize length = env->GetArrayLength(positions);
+
+        for (jsize i = 0; i < length; i++) {
+            jobject mattoneData = env->GetObjectArrayElement(positions, i);
+            jclass mattoneClass = env->GetObjectClass(mattoneData);
+
+            // Ottieni i campi x, y e str
+           //jfieldID xField = env->GetFieldID(mattoneClass, "x", "F");
+           // jfieldID yField = env->GetFieldID(mattoneClass, "y", "F");
+            jfieldID strField = env->GetFieldID(mattoneClass, "currentAn", "Ljava/lang/String;");
+
+            // Estrai i valori
+           // float x = env->GetFloatField(mattoneData, xField);
+           // float y = env->GetFloatField(mattoneData, yField);
+            jstring str = (jstring) env->GetObjectField(mattoneData, strField);
+
+            // Converti la stringa in std::string
+            const char* strChars = env->GetStringUTFChars(str, nullptr);
+            std::string currentAnimation(strChars);
+            env->ReleaseStringUTFChars(str, strChars); // Rilascia la memoria
+
+            mattoni[i].currentAn=currentAnimation;
+
+            // Rilascia il riferimento all'oggetto nemico
+            env->DeleteLocalRef(mattoneData);
+        }
+
+}
+*/
+
 
 extern "C" JNIEXPORT void JNICALL
 Java_com_game_omino_render_GameRenderer_nativeSetScalaPositions(JNIEnv* env, jclass, jfloatArray arr) {
@@ -315,15 +386,15 @@ Java_com_game_omino_render_GameRenderer_nativeSetScalaPositions(JNIEnv* env, jcl
 
 
 
-static void changeFrameSetOmino(int maxIdx) {
-   omino.animationTime += 0.016f; // Supponendo un frame rate di circa 60 FPS
-   if (omino.animationTime >= omino.frameDuration) {
-       if(omino.currentFrame < maxIdx){
-           omino.currentFrame++;
+static void changeFrameSet(int maxIdx, Entity& entity) {
+   entity.animationTime += 0.016f; // Supponendo un frame rate di circa 60 FPS
+   if (entity.animationTime >= entity.frameDuration) {
+       if(entity.currentFrame < maxIdx){
+           entity.currentFrame++;
        }else {
-           omino.currentFrame = 1;
+           entity.currentFrame = 1;
        }
-       omino.animationTime = 0.0f; // Resetta il tempo
+       entity.animationTime = 0.0f; // Resetta il tempo
    }
 }
 
@@ -332,25 +403,29 @@ extern "C" JNIEXPORT void JNICALL
 Java_com_game_omino_render_GameRenderer_nativeRender(JNIEnv* env, jclass) {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    for (auto& m : mattoni)
-        drawQuad(textures["mattone"], m.pos.x, m.pos.y);
-
+    //disegna scale...
     for (auto& s : scale)
         drawQuad(textures["scala"], s.pos.x, s.pos.y);
 
+    //disegna mattoni...
+    for (auto& m : mattoni){
+        drawQuad(textures["mattone"], m.pos.x, m.pos.y);
+    }
+
+    //disegna nemici...
     for (auto& n : nemici)
-            drawQuad(textures["nemico_idle_dx"], n.pos.x, n.pos.y);
+       drawQuad(textures["nemico_idle_dx"], n.pos.x, n.pos.y);
 
-
+    //disegna omino...
     std::string key = "";
     if(omino.currentAn == "omino_run_dx"
         || omino.currentAn == "omino_run_sx" ){
-        changeFrameSetOmino(8);
+        changeFrameSet(8, omino);
         key = omino.currentAn + "_" + std::to_string(omino.currentFrame);
 
     }else if(omino.currentAn == "omino_run_up"
         || omino.currentAn == "omino_run_down" ){
-            changeFrameSetOmino(2);
+            changeFrameSet(2, omino);
             key = omino.currentAn + "_" + std::to_string(omino.currentFrame);
     }else { //omino_idle_dx; omino_idle_sx; omino_falling;
             key = omino.currentAn;

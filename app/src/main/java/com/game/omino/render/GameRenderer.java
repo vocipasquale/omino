@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.egl.EGLConfig;
 
-import com.game.omino.utils.NemicoData;
+import com.game.omino.utils.DataUtil;
 
 public class GameRenderer implements GLSurfaceView.Renderer {
 
@@ -29,6 +29,7 @@ public class GameRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         if (!initialized.get()) {
             nativeInit(assetManager);
+            nativeSetScalaPositions(GameWorld.getInstance().getLevel().getScalaPositionsFlat());
             initialized.set(true);
         }
     }
@@ -53,11 +54,8 @@ public class GameRenderer implements GLSurfaceView.Renderer {
             // Passaggio dati a C++
             Omino o = GameWorld.getInstance().getOmino();
             nativeSetOminoPositions(o.getX(), o.getY(), o.getCurrentAnimation());
-
-            nativeSetNemiciPositions(GameWorld.getInstance().getLevel().getNemiciPositionsFlat());
-
             nativeSetMattonePositions(GameWorld.getInstance().getLevel().getMattonePositionsFlat());
-            nativeSetScalaPositions(GameWorld.getInstance().getLevel().getScalaPositionsFlat());
+            nativeSetNemiciPositions(GameWorld.getInstance().getLevel().getNemiciPositionsFlat());
 
             // render nativo OpenGL
             nativeRender();
@@ -71,7 +69,7 @@ public class GameRenderer implements GLSurfaceView.Renderer {
 
     // JNI helpers da implementare in C++:
     private static native void nativeSetOminoPositions(float x, float y, String currentAnimation);
-    private static native void nativeSetNemiciPositions(NemicoData[] positions);
+    private static native void nativeSetNemiciPositions(DataUtil[] positions);
     private static native void nativeSetMattonePositions(float[] positions);
     private static native void nativeSetScalaPositions(float[] positions);
 }

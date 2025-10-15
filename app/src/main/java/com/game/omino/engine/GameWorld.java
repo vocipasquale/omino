@@ -1,6 +1,7 @@
 package com.game.omino.engine;
 
 import android.os.Handler;
+import android.util.Log;
 import com.game.omino.entities.Entity;
 import com.game.omino.entities.Nemico;
 import com.game.omino.entities.Omino;
@@ -9,6 +10,7 @@ import com.game.omino.scene.tiles.MattoneTile;
 import com.game.omino.scene.tiles.NullTile;
 import com.game.omino.scene.tiles.Tile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.game.omino.utils.Constants.*;
@@ -47,7 +49,7 @@ public class GameWorld {
         //applico gravità se l'area è libera...
         gravita(omino);
 
-        for(Nemico n: level.getNemici()){
+        for (Nemico n : level.getNemici()) {
             gravita(n);
             n.aggiorna();
         }
@@ -59,7 +61,7 @@ public class GameWorld {
 
     }
 
-    private void gravita(Entity entity){
+    private void gravita(Entity entity) {
         List<Tile> area = level.getArea(entity.getY() + entity.getH(), entity.getX());
         Tile t;
 
@@ -90,26 +92,46 @@ public class GameWorld {
     }
 
 
-    public void cancelTile(int y, int x) {
-        List<Tile> rowDown = level.getRow(y);
-        if (x % TILE_SIZE >= TILE_SIZE / 10) {
-            x += TILE_SIZE;
-        }
-
-        int finalX = x;
-        Tile tFD = rowDown.get(finalX / TILE_SIZE);
-        Tile tF = level.getRow(y - TILE_SIZE).get(finalX / TILE_SIZE);
-        if (tFD instanceof MattoneTile && tF instanceof NullTile) {
-            rowDown.set(finalX / TILE_SIZE, new NullTile(tFD.getX(), tFD.getY(), tFD.getW(), tFD.getH()));
-
-            Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    // Annulla l'operazione ripristinando il tile originale
-                    rowDown.set(finalX / TILE_SIZE, tFD);
+    public void cancelTile(boolean dx) {
+        List<Tile> rowDown = level.getRow(omino.getY()+ omino.getH());//riga sotto omino
+        List<MattoneTile> mattoniSotto = new ArrayList<>();
+        MattoneTile m = null;
+        for (Tile t: rowDown){
+            if(t instanceof MattoneTile){
+                if(dx){
+                    if(Math.abs(omino.getX()+ omino.getW()- t.getX())<=TOLERANCE){
+                        m = (MattoneTile) t;
+                    }
+                }else {
+                    if(Math.abs(t.getX()+t.getW()- omino.getX())<=TOLERANCE){
+                        m = (MattoneTile) t;
+                    }
                 }
-            }, SEC_ERASE_MATTONE*1000);
+            }
         }
+
+        if(m!=null){
+            if(level.getRow(omino.getY()).get(m.getX()/TILE_SIZE) instanceof NullTile){
+                //sostituisce MattoneTile con NullTile dopo un intervallo
+                rowDown.set(m.getX()/TILE_SIZE, new NullTile(m.getX(), m.getY(), m.getW(), m.getH()));
+
+                Handler handler = new Handler();
+                MattoneTile finalM = m;
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        //ripristino mattone...
+                        rowDown.set(finalM.getX()/TILE_SIZE, finalM);
+                        //Log.d("GameWorld: cancella mattone: ", "" + System.currentTimeMillis());
+                    }
+                }, SEC_ERASE_MATTONE);
+            }
+        }
+
+
+
+
+
+
     }
 }

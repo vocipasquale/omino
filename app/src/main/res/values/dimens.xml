@@ -7,8 +7,9 @@
 	<dimen name="spacing_xl">24dp</dimen>
 	<dimen name="spacing_2xl">32dp</dimen>
 	<!-- Altezza fissa pulsanti arcade (configurabile) -->
-	<dimen name="arcade_button_height">40dp</dimen>
+	<dimen name="arcade_button_height">80dp</dimen>
 	<dimen name="arcade_button_width">160dp</dimen>
+	<dimen name="arcade_button_ctrl_width_big">120dp</dimen>
 	<dimen name="arcade_button_ctrl_width">60dp</dimen>
 </resources>
 
