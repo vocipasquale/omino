@@ -64,8 +64,9 @@ public  class LevelLoader {
             omino.setH(TILE_SIZE);
             omino.setW(TILE_SIZE);
             return new NullTile(x*TILE_SIZE,y*TILE_SIZE,TILE_SIZE,TILE_SIZE);
-        }else if(c == 'N'){
-            nemici.add(new Nemico(x*TILE_SIZE,y*TILE_SIZE,TILE_SIZE,TILE_SIZE, omino));
+        }else if(c == '1' || c == '2' || c == '3' || c == '4' || c == '5' || c == '6'
+                || c == '7' || c == '8' || c == '9'){
+            nemici.add(new Nemico(c, x*TILE_SIZE,y*TILE_SIZE,TILE_SIZE,TILE_SIZE, omino));
             return new NullTile(x*TILE_SIZE,y*TILE_SIZE,TILE_SIZE,TILE_SIZE);
         }else {
             throw new Exception("LevelLoader: carattere non gestito --> "+c);

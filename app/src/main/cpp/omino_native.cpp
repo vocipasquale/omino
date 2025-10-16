@@ -5,6 +5,7 @@
 #include <string>
 #include <map>
 #include <android/log.h>
+#include <unordered_map>
 
 // stb_image per caricare PNG da memoria
 #define STB_IMAGE_IMPLEMENTATION
@@ -94,7 +95,7 @@ struct Mattone {
 };
 
 static Entity omino;
-static std::vector<Entity> nemici;
+static std::unordered_map<int, Entity> nemici;
 static std::vector<Mattone> mattoni;
 static std::vector<Scala> scale;
 
@@ -118,6 +119,23 @@ static int screenHeight = 0;
 // -----------------------------
 // Funzione di utilità
 // -----------------------------
+static void addNemico(int id, const Entity& nemico) {
+    nemici[id] = nemico; // Aggiungi o aggiorna il nemico con la chiave id
+}
+
+static Entity* getNemico(int id) {
+    auto it = nemici.find(id);
+    if (it != nemici.end()) {
+        return &it->second; // Restituisci un puntatore all'Entity
+    }
+    return nullptr; // Restituisci nullptr se non trovato
+}
+
+static void removeNemico(int id) {
+    nemici.erase(id); // Rimuovi il nemico dalla mappa
+}
+
+
 static Texture loadTextureFromAsset(const std::string& filename) {
     //__android_log_print(ANDROID_LOG_DEBUG, "omino Cpp", "loadTextureFromAsset");
 
@@ -186,6 +204,18 @@ static std::string jstringToString(JNIEnv* env, jstring jStr) {
            return str;
 }
 
+static void changeFrameSet(int maxIdx, Entity& entity) {
+   entity.animationTime += 0.016f; // Supponendo un frame rate di circa 60 FPS
+   if (entity.animationTime >= entity.frameDuration) {
+       if(entity.currentFrame < maxIdx){
+           entity.currentFrame++;
+       }else {
+           entity.currentFrame = 1;
+       }
+       entity.animationTime = 0.0f; // Resetta il tempo
+   }
+}
+
 // -----------------------------
 // JNI
 // -----------------------------
@@ -197,31 +227,31 @@ Java_com_game_omino_render_GameRenderer_nativeInit(JNIEnv* env, jclass, jobject 
     textures["omino_idle_sx"] = loadTextureFromAsset("sprites/omino_sx_1.png");
     textures["omino_idle_up"] = loadTextureFromAsset("sprites/omino_idle_up.png");
     textures["omino_falling"] = loadTextureFromAsset("sprites/omino_falling.png");
-
     textures["omino_run_dx_1"] = loadTextureFromAsset("sprites/omino_dx_1.png");
     textures["omino_run_dx_2"] = loadTextureFromAsset("sprites/omino_dx_2.png");
     textures["omino_run_dx_3"] = loadTextureFromAsset("sprites/omino_dx_3.png");
-    textures["omino_run_dx_4"] = loadTextureFromAsset("sprites/omino_dx_4.png");
-    textures["omino_run_dx_5"] = loadTextureFromAsset("sprites/omino_dx_5.png");
-    textures["omino_run_dx_6"] = loadTextureFromAsset("sprites/omino_dx_6.png");
-    textures["omino_run_dx_7"] = loadTextureFromAsset("sprites/omino_dx_7.png");
-    textures["omino_run_dx_8"] = loadTextureFromAsset("sprites/omino_dx_8.png");
-
     textures["omino_run_sx_1"] = loadTextureFromAsset("sprites/omino_sx_1.png");
     textures["omino_run_sx_2"] = loadTextureFromAsset("sprites/omino_sx_2.png");
     textures["omino_run_sx_3"] = loadTextureFromAsset("sprites/omino_sx_3.png");
-    textures["omino_run_sx_4"] = loadTextureFromAsset("sprites/omino_sx_4.png");
-    textures["omino_run_sx_5"] = loadTextureFromAsset("sprites/omino_sx_5.png");
-    textures["omino_run_sx_6"] = loadTextureFromAsset("sprites/omino_dx_6.png");
-    textures["omino_run_sx_7"] = loadTextureFromAsset("sprites/omino_sx_7.png");
-    textures["omino_run_sx_8"] = loadTextureFromAsset("sprites/omino_sx_8.png");
-
     textures["omino_run_up_1"] = loadTextureFromAsset("sprites/omino_up_1.png");
     textures["omino_run_up_2"] = loadTextureFromAsset("sprites/omino_up_2.png");
     textures["omino_run_down_1"] = loadTextureFromAsset("sprites/omino_up_2.png");
     textures["omino_run_down_2"] = loadTextureFromAsset("sprites/omino_up_1.png");
 
+    textures["nemico_idle_sx"] = loadTextureFromAsset("sprites/nemico_sx_1.png");
     textures["nemico_idle_dx"] = loadTextureFromAsset("sprites/nemico_dx_1.png");
+    textures["nemico_idle_up"] = loadTextureFromAsset("sprites/nemico_idle_up.png");
+    textures["nemico_falling"] = loadTextureFromAsset("sprites/nemico_falling.png");
+    textures["nemico_run_dx_1"] = loadTextureFromAsset("sprites/nemico_dx_1.png");
+    textures["nemico_run_dx_2"] = loadTextureFromAsset("sprites/nemico_dx_2.png");
+    textures["nemico_run_dx_3"] = loadTextureFromAsset("sprites/nemico_dx_3.png");
+    textures["nemico_run_sx_1"] = loadTextureFromAsset("sprites/nemico_sx_1.png");
+    textures["nemico_run_sx_2"] = loadTextureFromAsset("sprites/nemico_sx_2.png");
+    textures["nemico_run_sx_3"] = loadTextureFromAsset("sprites/nemico_sx_3.png");
+    textures["nemico_run_up_1"] = loadTextureFromAsset("sprites/nemico_up_1.png");
+    textures["nemico_run_up_2"] = loadTextureFromAsset("sprites/nemico_up_2.png");
+    textures["nemico_run_down_1"] = loadTextureFromAsset("sprites/nemico_up_2.png");
+    textures["nemico_run_down_2"] = loadTextureFromAsset("sprites/nemico_up_1.png");
 
     textures["mattone"]    = loadTextureFromAsset("tiles/mattone.png");
     textures["scala"]      = loadTextureFromAsset("tiles/scala.png");
@@ -264,18 +294,19 @@ Java_com_game_omino_render_GameRenderer_nativeSetOminoPositions(JNIEnv* env, jcl
 extern "C" JNIEXPORT void JNICALL
 Java_com_game_omino_render_GameRenderer_nativeSetNemiciPositions(JNIEnv* env, jclass, jobjectArray positions) {
     jsize length = env->GetArrayLength(positions);
-    nemici.clear(); // Pulisci il vettore esistente
 
     for (jsize i = 0; i < length; i++) {
         jobject nemicoData = env->GetObjectArrayElement(positions, i);
         jclass nemicoClass = env->GetObjectClass(nemicoData);
 
         // Ottieni i campi x, y e str
+        jfieldID idField = env->GetFieldID(nemicoClass, "id", "I");
         jfieldID xField = env->GetFieldID(nemicoClass, "x", "F");
         jfieldID yField = env->GetFieldID(nemicoClass, "y", "F");
         jfieldID strField = env->GetFieldID(nemicoClass, "currentAn", "Ljava/lang/String;");
 
         // Estrai i valori
+        int id = env->GetIntField(nemicoData, idField);
         float x = env->GetFloatField(nemicoData, xField);
         float y = env->GetFloatField(nemicoData, yField);
         jstring str = (jstring) env->GetObjectField(nemicoData, strField);
@@ -285,9 +316,13 @@ Java_com_game_omino_render_GameRenderer_nativeSetNemiciPositions(JNIEnv* env, jc
         std::string currentAnimation(strChars);
         env->ReleaseStringUTFChars(str, strChars); // Rilascia la memoria
 
-        // Crea un nuovo Entity e aggiungilo al vettore nemici
-        Entity newNemico = {{x, y}, currentAnimation, 1, 0.0f, 0.1f}; // Imposta i valori di default
-        nemici.push_back(newNemico);
+        // Crea un nuovo Entity e aggiungilo al mappa nemici
+        Entity* nemico = getNemico(id);
+        if (nemico == nullptr) { // Controlla se il nemico è stato trovato
+            addNemico(id, {{x, y}, currentAnimation, 1, 0.0f, 0.1f}); // Imposta i valori di default
+        }else{
+            addNemico(id, {{x, y}, currentAnimation, nemico->currentFrame, nemico->animationTime, nemico->frameDuration}); //aggiorna x,y e currentAn
+        }
 
         // Rilascia il riferimento all'oggetto nemico
         env->DeleteLocalRef(nemicoData);
@@ -384,21 +419,6 @@ Java_com_game_omino_render_GameRenderer_nativeSetScalaPositions(JNIEnv* env, jcl
 }
 
 
-
-
-static void changeFrameSet(int maxIdx, Entity& entity) {
-   entity.animationTime += 0.016f; // Supponendo un frame rate di circa 60 FPS
-   if (entity.animationTime >= entity.frameDuration) {
-       if(entity.currentFrame < maxIdx){
-           entity.currentFrame++;
-       }else {
-           entity.currentFrame = 1;
-       }
-       entity.animationTime = 0.0f; // Resetta il tempo
-   }
-}
-
-
 extern "C" JNIEXPORT void JNICALL
 Java_com_game_omino_render_GameRenderer_nativeRender(JNIEnv* env, jclass) {
     glClear(GL_COLOR_BUFFER_BIT);
@@ -412,17 +432,12 @@ Java_com_game_omino_render_GameRenderer_nativeRender(JNIEnv* env, jclass) {
         drawQuad(textures["mattone"], m.pos.x, m.pos.y);
     }
 
-    //disegna nemici...
-    for (auto& n : nemici)
-       drawQuad(textures["nemico_idle_dx"], n.pos.x, n.pos.y);
-
     //disegna omino...
     std::string key = "";
     if(omino.currentAn == "omino_run_dx"
         || omino.currentAn == "omino_run_sx" ){
-        changeFrameSet(8, omino);
+        changeFrameSet(3, omino);
         key = omino.currentAn + "_" + std::to_string(omino.currentFrame);
-
     }else if(omino.currentAn == "omino_run_up"
         || omino.currentAn == "omino_run_down" ){
             changeFrameSet(2, omino);
@@ -430,9 +445,29 @@ Java_com_game_omino_render_GameRenderer_nativeRender(JNIEnv* env, jclass) {
     }else { //omino_idle_dx; omino_idle_sx; omino_falling;
             key = omino.currentAn;
     }
-    //__android_log_print(ANDROID_LOG_DEBUG, "omino", "texture key: (%s)", key.c_str());
 
     // Disegna il frame corrente dell'animazione
     drawQuad(textures[key], omino.pos.x, omino.pos.y);
+
+
+    for (auto& pair : nemici) {
+        int id = pair.first;          // La chiave (id del nemico)
+        Entity& n = pair.second; // L'oggetto Entity
+
+            if(n.currentAn == "nemico_run_dx"
+                    || n.currentAn == "nemico_run_sx" ){
+                    changeFrameSet(3, n);
+                    key = n.currentAn + "_" + std::to_string(n.currentFrame);
+            }else if(n.currentAn == "nemico_run_up"
+                    || n.currentAn == "nemico_run_down" ){
+                    changeFrameSet(2, n);
+                    key = n.currentAn + "_" + std::to_string(n.currentFrame);
+            }else {
+                    key = n.currentAn;
+            }
+
+            drawQuad(textures[key], n.pos.x, n.pos.y);
+        }
+
 }
 

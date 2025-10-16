@@ -102,7 +102,7 @@ public class Level {
         Nemico nem;
         for (int n=0; n<nemici.size(); n++){
             nem = nemici.get(n);
-            result[n]=new DataUtil(nem.getX(), nem.getY(), nem.getCurrentAnimation());
+            result[n]=new DataUtil(nem.getId(), nem.getX(), nem.getY(), nem.getCurrentAnimation());
         }
         return result;
     }

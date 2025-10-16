@@ -107,8 +107,7 @@ public class Omino extends Entity {
     }
 
     @Override
-    public void stopSu() {
-        currentAnimation = IDLE_UP_TX;
+    public void stopSu() { currentAnimation = IDLE_UP_TX;
     }
 
     @Override
@@ -117,13 +116,12 @@ public class Omino extends Entity {
     }
 
     @Override
-    public void stopDestra() {
-        currentAnimation = IDLE_DX_TX;
+    public void stopDestra() { currentAnimation = falling?FALLING_TX:IDLE_DX_TX;
     }
 
     @Override
     public void stopSinistra() {
-        currentAnimation = IDLE_SX_TX;
+        currentAnimation = falling?FALLING_TX:IDLE_SX_TX;
     }
 
     public void fire(boolean dx){

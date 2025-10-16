@@ -12,16 +12,33 @@ import static com.game.omino.utils.Constants.STEP;
 
 public class Nemico extends Entity {
 
-    private static final String NEMICO_IDLE_DX = "nemico_idle_dx";
+    private static final String IDLE_DX_TX = "nemico_idle_dx";
+    private static final String IDLE_SX_TX = "nemico_idle_sx";
+    private static final String IDLE_UP_TX = "nemico_idle_up";
+    private static final String RUN_DX_TX = "nemico_run_dx";
+    private static final String RUN_SX_TX = "nemico_run_sx";
+    private static final String RUN_UP_TX = "nemico_run_up";
+    private static final String RUN_DOWN_TX = "nemico_run_down";
+    private static final String FALLING_TX = "nemico_falling";
+    private static final String NULL_TX = "sprite_null";
+
+    private int id=0;
+
+
     private Omino omino; // Riferimento all'istanza di Omino
     private boolean dx = true;
 
 
-    public Nemico(int x, int y, int w, int h, Omino omino) {
+    public Nemico(char charId, int x, int y, int w, int h, Omino omino) {
         super("", x, y, w, h);
+        id = Character.getNumericValue(charId);
         this.omino = omino; // Inizializza il riferimento a Omino
 
-        currentAnimation = NEMICO_IDLE_DX;
+        currentAnimation = IDLE_DX_TX;
+    }
+
+    public int getId(){
+        return id;
     }
 
     @Override
@@ -35,10 +52,10 @@ public class Nemico extends Entity {
                 } else {
                     y -= STEP_NEMICO;
                 }
-                currentAnimation = NEMICO_IDLE_DX;
+                currentAnimation = RUN_UP_TX;
             }
         } else {
-            currentAnimation = NEMICO_IDLE_DX;
+            currentAnimation = FALLING_TX;
         }
     }
 
@@ -51,13 +68,13 @@ public class Nemico extends Entity {
                 if (!(t instanceof MattoneTile)) {//se non è mattone può essere solo ScalaTile o NullTile
                     x = t.getX(); //allineamento...
                     y += STEP_NEMICO;
-                    currentAnimation = NEMICO_IDLE_DX;
+                    currentAnimation = RUN_DOWN_TX;
                 }else{
                     y = t.getY()-h; //mi fermo sul mattone
                 }
             }
         } else {
-            currentAnimation = NEMICO_IDLE_DX;
+            currentAnimation = FALLING_TX;
         }
     }
 
@@ -70,10 +87,10 @@ public class Nemico extends Entity {
             } else {
                 x -= STEP_NEMICO;
             }
-            currentAnimation = NEMICO_IDLE_DX;
+            currentAnimation = RUN_SX_TX;
             dx = false;
         } else {
-            currentAnimation = NEMICO_IDLE_DX;
+            currentAnimation = FALLING_TX;
         }
 
     }
@@ -87,10 +104,10 @@ public class Nemico extends Entity {
             } else {
                 x += STEP_NEMICO;
             }
-            currentAnimation = NEMICO_IDLE_DX;
+            currentAnimation = RUN_DX_TX;
             dx = true;
         } else {
-            currentAnimation = NEMICO_IDLE_DX;
+            currentAnimation = FALLING_TX;
         }
     }
 
