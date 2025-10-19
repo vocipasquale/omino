@@ -40,22 +40,23 @@ public  class LevelLoader {
         String riga = "";
         Omino omino= new Omino(0, 0, 0, 0);
         List<Nemico> nemici = new ArrayList<>();
+        int m=1;
 
         for (int r=0; r<righe.size(); r++){
             riga = righe.get(r);
             for(int c=0; c<riga.length(); c++) {
-                matrix[r][c] = decodeChar(riga.charAt(c), r, c, omino, nemici);
+                matrix[r][c] = decodeChar(riga.charAt(c), r, c, omino, nemici, m++);
             }
         }
 
         return new Level(omino, nemici, matrix);
     }
 
-    private static Tile decodeChar(char c, int y, int x, Omino omino, List<Nemico> nemici) throws Exception {
+    private static Tile decodeChar(char c, int y, int x, Omino omino, List<Nemico> nemici, int m) throws Exception {
         if(c == '#'){
             return new ScalaTile(x*TILE_SIZE,y*TILE_SIZE,TILE_SIZE,TILE_SIZE);
         } else if(c == '@'){
-            return new MattoneTile(x*TILE_SIZE,y*TILE_SIZE,TILE_SIZE,TILE_SIZE);
+            return new MattoneTile(m, x*TILE_SIZE,y*TILE_SIZE,TILE_SIZE,TILE_SIZE);
         }else if(c == '-'){
             return new NullTile(x*TILE_SIZE,y*TILE_SIZE,TILE_SIZE,TILE_SIZE);
         }else if(c == 'O'){

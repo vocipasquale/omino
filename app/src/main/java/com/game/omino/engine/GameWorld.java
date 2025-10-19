@@ -94,7 +94,6 @@ public class GameWorld {
 
     public void cancelTile(boolean dx) {
         List<Tile> rowDown = level.getRow(omino.getY()+ omino.getH());//riga sotto omino
-        List<MattoneTile> mattoniSotto = new ArrayList<>();
         MattoneTile m = null;
         for (Tile t: rowDown){
             if(t instanceof MattoneTile){
@@ -114,13 +113,18 @@ public class GameWorld {
             if(level.getRow(omino.getY()).get(m.getX()/TILE_SIZE) instanceof NullTile){
                 //sostituisce MattoneTile con NullTile dopo un intervallo
                 rowDown.set(m.getX()/TILE_SIZE, new NullTile(m.getX(), m.getY(), m.getW(), m.getH()));
+                m.setCurrentAnimation(MattoneTile.MATTONE_ERASING_TX);
+                level.addMattoneErasing(m.getId(), m);
 
                 Handler handler = new Handler();
                 MattoneTile finalM = m;
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
+                        Log.d("GameWorld", "Restoring tile after delay.");
                         //ripristino mattone...
+                        finalM.setCurrentAnimation(MattoneTile.MATTONE_TX);
+                        level.addMattoneErasing(finalM.getId(), finalM);
                         rowDown.set(finalM.getX()/TILE_SIZE, finalM);
                         //Log.d("GameWorld: cancella mattone: ", "" + System.currentTimeMillis());
                     }

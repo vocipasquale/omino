@@ -88,15 +88,17 @@ struct Scala {
     Vec2 pos;
     std::string textureKey;
 };
-
+/*
 struct Mattone {
     Vec2 pos;
     std::string textureKey;
 };
+*/
 
 static Entity omino;
 static std::unordered_map<int, Entity> nemici;
-static std::vector<Mattone> mattoni;
+//static std::vector<Mattone> mattoni;
+static std::unordered_map<int, Entity> mattoni;
 static std::vector<Scala> scale;
 
 // Gestione textures
@@ -133,6 +135,22 @@ static Entity* getNemico(int id) {
 
 static void removeNemico(int id) {
     nemici.erase(id); // Rimuovi il nemico dalla mappa
+}
+
+static void addMattone(int id, const Entity& mattone) {
+    mattoni[id] = mattone; // Aggiunge o aggiorna il mattone con la chiave id
+}
+
+static Entity* getMattone(int id) {
+    auto it = mattoni.find(id);
+    if (it != mattoni.end()) {
+        return &it->second; // Restituisce un puntatore all'Entity
+    }
+    return nullptr; // Restituisci nullptr se non trovato
+}
+
+static void removeMattone(int id) {
+    mattoni.erase(id); // Rimuove il mattone dalla mappa
 }
 
 
@@ -254,6 +272,23 @@ Java_com_game_omino_render_GameRenderer_nativeInit(JNIEnv* env, jclass, jobject 
     textures["nemico_run_down_2"] = loadTextureFromAsset("sprites/nemico_up_1.png");
 
     textures["mattone"]    = loadTextureFromAsset("tiles/mattone.png");
+    textures["mattone_erasing_1"]    = loadTextureFromAsset("tiles/mattone_erasing_1.png");
+    textures["mattone_erasing_2"]    = loadTextureFromAsset("tiles/mattone_erasing_2.png");
+    textures["mattone_erasing_3"]    = loadTextureFromAsset("tiles/mattone_erasing_3.png");
+    textures["mattone_erasing_4"]    = loadTextureFromAsset("tiles/mattone_erasing_4.png");
+    textures["mattone_erasing_5"]    = loadTextureFromAsset("tiles/mattone_erasing_5.png");
+    textures["mattone_erasing_6"]    = loadTextureFromAsset("tiles/mattone_erasing_6.png");
+    textures["mattone_erasing_7"]    = loadTextureFromAsset("tiles/mattone_erasing_7.png");
+    textures["mattone_erasing_8"]    = loadTextureFromAsset("tiles/mattone_erasing_8.png");
+    textures["mattone_erasing_9"]    = loadTextureFromAsset("tiles/mattone_erasing_9.png");
+    textures["mattone_erasing_10"]    = loadTextureFromAsset("tiles/mattone_erasing_10.png");
+    textures["mattone_erasing_11"]    = loadTextureFromAsset("tiles/mattone_erasing_11.png");
+    textures["mattone_erasing_12"]    = loadTextureFromAsset("tiles/mattone_erasing_12.png");
+    textures["mattone_erasing_13"]    = loadTextureFromAsset("tiles/mattone_erasing_13.png");
+    textures["mattone_erasing_14"]    = loadTextureFromAsset("tiles/mattone_erasing_14.png");
+    textures["mattone_erasing_15"]    = loadTextureFromAsset("tiles/mattone_erasing_15.png");
+    textures["mattone_erasing_16"]    = loadTextureFromAsset("tiles/mattone_erasing_16.png");
+
     textures["scala"]      = loadTextureFromAsset("tiles/scala.png");
 
     //init Omino
@@ -279,7 +314,7 @@ Java_com_game_omino_render_GameRenderer_nativeResize(JNIEnv*, jclass, jint width
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_game_omino_render_GameRenderer_nativeSetOminoPositions(JNIEnv* env, jclass, jfloat x, jfloat y, jstring currentAnimation) {
+Java_com_game_omino_render_GameRenderer_nativeSetOminoPositionsAndAnimation(JNIEnv* env, jclass, jfloat x, jfloat y, jstring currentAnimation) {
        //__android_log_print(ANDROID_LOG_DEBUG, "omino", "nativeSetOminoPositions", "");
 
        const char* chars = env->GetStringUTFChars(currentAnimation, nullptr);
@@ -292,7 +327,7 @@ Java_com_game_omino_render_GameRenderer_nativeSetOminoPositions(JNIEnv* env, jcl
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_game_omino_render_GameRenderer_nativeSetNemiciPositions(JNIEnv* env, jclass, jobjectArray positions) {
+Java_com_game_omino_render_GameRenderer_nativeSetNemiciPositionsAndAnimation(JNIEnv* env, jclass, jobjectArray positions) {
     jsize length = env->GetArrayLength(positions);
 
     for (jsize i = 0; i < length; i++) {
@@ -331,51 +366,7 @@ Java_com_game_omino_render_GameRenderer_nativeSetNemiciPositions(JNIEnv* env, jc
 
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_game_omino_render_GameRenderer_nativeSetMattonePositions(JNIEnv* env, jclass, jfloatArray arr) {
-    jsize len = env->GetArrayLength(arr);
-    jfloat* data = env->GetFloatArrayElements(arr, nullptr);
-    mattoni.clear();
-    for (int i = 0; i < len; i += 2) {
-        mattoni.push_back({data[i], data[i+1]});
-    }
-    env->ReleaseFloatArrayElements(arr, data, 0);
-}
-
-/*
-extern "C" JNIEXPORT void JNICALL
 Java_com_game_omino_render_GameRenderer_nativeSetMattonePositions(JNIEnv* env, jclass, jobjectArray positions) {
-    jsize length = env->GetArrayLength(positions);
-    mattoni.clear();
-
-    for (jsize i = 0; i < length; i++) {
-        jobject mattoneData = env->GetObjectArrayElement(positions, i);
-        jclass mattoneClass = env->GetObjectClass(mattoneData);
-
-        // Ottieni i campi x, y e str
-        jfieldID xField = env->GetFieldID(mattoneClass, "x", "F");
-        jfieldID yField = env->GetFieldID(mattoneClass, "y", "F");
-        jfieldID strField = env->GetFieldID(mattoneClass, "currentAn", "Ljava/lang/String;");
-
-        // Estrai i valori
-        float x = env->GetFloatField(mattoneData, xField);
-        float y = env->GetFloatField(mattoneData, yField);
-        jstring str = (jstring) env->GetObjectField(mattoneData, strField);
-
-        // Converti la stringa in std::string
-        const char* strChars = env->GetStringUTFChars(str, nullptr);
-        std::string currentAnimation(strChars);
-        env->ReleaseStringUTFChars(str, strChars); // Rilascia la memoria
-
-        Entity newMattone = {{x, y}, currentAnimation, 1, 0.0f, 0.1f}; // Imposta i valori di default
-        mattoni.push_back(newMattone);
-
-        // Rilascia il riferimento all'oggetto nemico
-        env->DeleteLocalRef(mattoneData);
-    }
-}
-
-extern "C" JNIEXPORT void JNICALL
-Java_com_game_omino_render_GameRenderer_nativeSetMattoneAnimations(JNIEnv* env, jclass, jobjectArray positions) {
     jsize length = env->GetArrayLength(positions);
 
         for (jsize i = 0; i < length; i++) {
@@ -383,13 +374,15 @@ Java_com_game_omino_render_GameRenderer_nativeSetMattoneAnimations(JNIEnv* env, 
             jclass mattoneClass = env->GetObjectClass(mattoneData);
 
             // Ottieni i campi x, y e str
-           //jfieldID xField = env->GetFieldID(mattoneClass, "x", "F");
-           // jfieldID yField = env->GetFieldID(mattoneClass, "y", "F");
+            jfieldID idField = env->GetFieldID(mattoneClass, "id", "I");
+            jfieldID xField = env->GetFieldID(mattoneClass, "x", "F");
+            jfieldID yField = env->GetFieldID(mattoneClass, "y", "F");
             jfieldID strField = env->GetFieldID(mattoneClass, "currentAn", "Ljava/lang/String;");
 
             // Estrai i valori
-           // float x = env->GetFloatField(mattoneData, xField);
-           // float y = env->GetFloatField(mattoneData, yField);
+            int id = env->GetIntField(mattoneData, idField);
+            float x = env->GetFloatField(mattoneData, xField);
+            float y = env->GetFloatField(mattoneData, yField);
             jstring str = (jstring) env->GetObjectField(mattoneData, strField);
 
             // Converti la stringa in std::string
@@ -397,14 +390,56 @@ Java_com_game_omino_render_GameRenderer_nativeSetMattoneAnimations(JNIEnv* env, 
             std::string currentAnimation(strChars);
             env->ReleaseStringUTFChars(str, strChars); // Rilascia la memoria
 
-            mattoni[i].currentAn=currentAnimation;
+         //   __android_log_print(ANDROID_LOG_ERROR, "mattone", "texture: %s", currentAnimation.c_str());
+
+            // Crea un nuovo Entity e aggiungilo al mappa mattoni
+            addMattone(id, {{x, y}, strChars, 1, 0.0f, 0.1f}); // Imposta i valori di default
 
             // Rilascia il riferimento all'oggetto nemico
             env->DeleteLocalRef(mattoneData);
         }
-
 }
-*/
+
+
+
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_game_omino_render_GameRenderer_nativeSetMattoneAnimations(JNIEnv* env, jclass, jobjectArray positions) {
+    jsize length = env->GetArrayLength(positions);
+
+            for (jsize i = 0; i < length; i++) {
+                jobject mattoneData = env->GetObjectArrayElement(positions, i);
+                jclass mattoneClass = env->GetObjectClass(mattoneData);
+
+                // Ottieni i campi x, y e str
+                jfieldID idField = env->GetFieldID(mattoneClass, "id", "I");
+                jfieldID xField = env->GetFieldID(mattoneClass, "x", "F");
+                jfieldID yField = env->GetFieldID(mattoneClass, "y", "F");
+                jfieldID strField = env->GetFieldID(mattoneClass, "currentAn", "Ljava/lang/String;");
+
+                // Estrai i valori
+                int id = env->GetIntField(mattoneData, idField);
+                float x = env->GetFloatField(mattoneData, xField);
+                float y = env->GetFloatField(mattoneData, yField);
+                jstring str = (jstring) env->GetObjectField(mattoneData, strField);
+
+                // Converti la stringa in std::string
+                const char* strChars = env->GetStringUTFChars(str, nullptr);
+                std::string currentAnimation(strChars);
+                env->ReleaseStringUTFChars(str, strChars); // Rilascia la memoria
+
+                Entity* mattone = getMattone(id);
+                if (mattone == nullptr) { // NON DOVREBBE ACCADERE!!!
+                    addMattone(id, {{x, y}, currentAnimation, 1, 0.0f, 0.1f});
+                }else{
+                    addMattone(id, {{x, y}, currentAnimation, mattone->currentFrame, mattone->animationTime, mattone->frameDuration}); //aggiorna x,y e currentAn
+                }
+
+                // Rilascia il riferimento all'oggetto nemico
+                env->DeleteLocalRef(mattoneData);
+            }
+}
+
 
 
 extern "C" JNIEXPORT void JNICALL
@@ -428,12 +463,24 @@ Java_com_game_omino_render_GameRenderer_nativeRender(JNIEnv* env, jclass) {
         drawQuad(textures["scala"], s.pos.x, s.pos.y);
 
     //disegna mattoni...
-    for (auto& m : mattoni){
-        drawQuad(textures["mattone"], m.pos.x, m.pos.y);
-    }
+    std::string key = "";
+    for (auto& pair : mattoni) {
+            int id = pair.first;          // La chiave (id del nemico)
+            Entity& m = pair.second; // L'oggetto Entity
+
+                if(m.currentAn == "mattone_erasing" ){
+                        changeFrameSet(16, m);
+                        key = m.currentAn + "_" + std::to_string(m.currentFrame);
+                }else {
+                        key = m.currentAn;
+                }
+                //__android_log_print(ANDROID_LOG_ERROR, "mattone", "texture: %s %f %f", key.c_str(), m.pos.y, m.pos.x);
+                drawQuad(textures[key], m.pos.x, m.pos.y);
+            }
+
+
 
     //disegna omino...
-    std::string key = "";
     if(omino.currentAn == "omino_run_dx"
         || omino.currentAn == "omino_run_sx" ){
         changeFrameSet(3, omino);

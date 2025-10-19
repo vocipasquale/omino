@@ -6,13 +6,16 @@ import com.game.omino.scene.tiles.*;
 import com.game.omino.utils.DataUtil;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.game.omino.utils.Constants.*;
 
 public class Level {
     private List<List<Tile>> tiles = new ArrayList<>(); //new Tile[SCREEN_HEIGHT][SCREEN_WIDTH];
     private List<ScalaTile> scale = new ArrayList<>(); //le scal in un livello non cambiano mai!
+    Map<Integer, MattoneTile> mattoniErasing = new HashMap<>();
     private List<Nemico> nemici;
 
 
@@ -67,26 +70,42 @@ public class Level {
 
     }
 
-    public float[] getMattonePositionsFlat() {
+//    public float[] getMattonePositionsFlat() {
+//        List<MattoneTile> mattoni = getMattoni();
+//        float[] arr = new float[mattoni.size() * 2];
+//        for (int i = 0; i < mattoni.size(); i++) {
+//            arr[i * 2] = mattoni.get(i).getX();
+//            arr[i * 2 + 1] = mattoni.get(i).getY();
+//        }
+//        return arr;
+//    }
+
+    public DataUtil[] getMattonePositionsFlat(){
         List<MattoneTile> mattoni = getMattoni();
-        float[] arr = new float[mattoni.size() * 2];
-        for (int i = 0; i < mattoni.size(); i++) {
-            arr[i * 2] = mattoni.get(i).getX();
-            arr[i * 2 + 1] = mattoni.get(i).getY();
+        DataUtil[] result = new DataUtil[mattoni.size()];
+        MattoneTile matt;
+        for (int m=0; m<mattoni.size(); m++){
+            matt = mattoni.get(m);
+            result[m]=new DataUtil(matt.getId(), matt.getX(), matt.getY(), matt.getCurrentAnimation());
         }
-        return arr;
+        return result;
     }
 
-//    public DataUtil[] getMattoneAnimationFlat(){
-//        List<MattoneTile> mattoni = getMattoni();
-//        DataUtil[] result = new DataUtil[mattoni.size()];
-//        MattoneTile matt;
-//        for (int m=0; m<mattoni.size(); m++){
-//            matt = mattoni.get(m);
-//            result[m]=new DataUtil(matt.getX(), matt.getY(), matt.getCurrentAnimation());
-//        }
-//        return result;
-//    }
+    public DataUtil[] getMattoneAnimationsFlat(){
+        List<MattoneTile> mattoni = getMattoniErasingList();
+        DataUtil[] result = new DataUtil[mattoni.size()];
+        MattoneTile matt;
+        for (int m=0; m<mattoni.size(); m++){
+            matt = mattoni.get(m);
+            result[m]=new DataUtil(matt.getId(), matt.getX(), matt.getY(), matt.getCurrentAnimation());
+        }
+        return result;
+    }
+
+    private List<MattoneTile> getMattoniErasingList() {
+       return new ArrayList<>(mattoniErasing.values());
+    }
+
 
     public float[] getScalaPositionsFlat() {
         float[] arr = new float[scale.size() * 2];
@@ -212,7 +231,21 @@ public class Level {
         return result;
     }
 
+    public MattoneTile getMattoneErasing(Integer id) {
+        return mattoniErasing.get(id);
+    }
+
+    public MattoneTile addMattoneErasing(Integer id, MattoneTile mattone) {
+        return mattoniErasing.put(id, mattone);
+    }
+
+    public MattoneTile removeMattoneErasing(Integer id){
+        return mattoniErasing.remove(id);
+    }
+
     public List<Nemico> getNemici() {
         return nemici;
     }
+
+
 }
