@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.egl.EGLConfig;
 
+import com.game.omino.scene.tiles.PortaTile;
 import com.game.omino.utils.DataUtil;
 
 public class GameRenderer implements GLSurfaceView.Renderer {
@@ -60,6 +61,11 @@ public class GameRenderer implements GLSurfaceView.Renderer {
             }
             nativeSetNemiciPositionsAndAnimation(GameWorld.getInstance().getLevel().getNemiciPositionsFlat());
 
+            PortaTile portaLevel = GameWorld.getInstance().getLevel().getPorta();
+            nativeSetPortaPositionsAndAnimation(portaLevel.getX(), portaLevel.getY(), portaLevel.getCurrentAnimation());
+
+            nativeSetCassaPositions(GameWorld.getInstance().getLevel().getCassaPositionsFlat());
+
             // render nativo OpenGL
             nativeRender();
         }
@@ -76,6 +82,9 @@ public class GameRenderer implements GLSurfaceView.Renderer {
     private static native void nativeSetMattonePositions(DataUtil[] positions);
     private static native void nativeSetMattoneAnimations(DataUtil[] positions);
     private static native void nativeSetScalaPositions(float[] positions);
+
+    private static native void nativeSetPortaPositionsAndAnimation(float x, float y, String currentAnimation);
+    private static native void nativeSetCassaPositions(float[] positions);
 }
 
 

@@ -3,10 +3,7 @@ package com.game.omino.levels;
 import android.content.Context;
 import com.game.omino.entities.Nemico;
 import com.game.omino.entities.Omino;
-import com.game.omino.scene.tiles.MattoneTile;
-import com.game.omino.scene.tiles.NullTile;
-import com.game.omino.scene.tiles.ScalaTile;
-import com.game.omino.scene.tiles.Tile;
+import com.game.omino.scene.tiles.*;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -69,6 +66,10 @@ public  class LevelLoader {
                 || c == '7' || c == '8' || c == '9'){
             nemici.add(new Nemico(c, x*TILE_SIZE,y*TILE_SIZE,TILE_SIZE,TILE_SIZE, omino));
             return new NullTile(x*TILE_SIZE,y*TILE_SIZE,TILE_SIZE,TILE_SIZE);
+        }else if(c == 'P'){
+            return new PortaTile(x*TILE_SIZE,y*TILE_SIZE,TILE_SIZE,TILE_SIZE);
+        }else if(c == 'C'){
+            return new CassaTile(x*TILE_SIZE,y*TILE_SIZE,TILE_SIZE,TILE_SIZE);
         }else {
             throw new Exception("LevelLoader: carattere non gestito --> "+c);
         }

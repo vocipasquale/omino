@@ -17,6 +17,8 @@ public class Level {
     private List<ScalaTile> scale = new ArrayList<>(); //le scal in un livello non cambiano mai!
     Map<Integer, MattoneTile> mattoniErasing = new HashMap<>();
     private List<Nemico> nemici;
+    private List<CassaTile> casse = new ArrayList<>();
+    private PortaTile porta;
 
 
     private Omino omino;
@@ -32,6 +34,8 @@ public class Level {
         MattoneTile mattoneInstance;
         ScalaTile scalaInstance;
         NullTile nullInstance;
+        PortaTile portaInstance;
+        CassaTile cassaInstance;
         String riga = "";
 
         for (int r = 0; r < TILES_4_COLUMN; r++) {
@@ -47,6 +51,14 @@ public class Level {
                 } else if (tilesMatrix[r][c] instanceof NullTile) {
                     nullInstance = (NullTile) tilesMatrix[r][c];
                     row.add(nullInstance);
+                }else if (tilesMatrix[r][c] instanceof PortaTile) {
+                    portaInstance = (PortaTile) tilesMatrix[r][c];
+                    porta = portaInstance;
+                    row.add(portaInstance);
+                }else if (tilesMatrix[r][c] instanceof CassaTile) {
+                    cassaInstance = (CassaTile) tilesMatrix[r][c];
+                    row.add(cassaInstance);
+                    casse.add(cassaInstance);
                 }
             }
             tiles.add(row);
@@ -116,6 +128,15 @@ public class Level {
         return arr;
     }
 
+    public float[] getCassaPositionsFlat() {
+        float[] arr = new float[casse.size() * 2];
+        for (int i = 0; i < casse.size(); i++) {
+            arr[i * 2] = casse.get(i).getX();
+            arr[i * 2 + 1] = casse.get(i).getY();
+        }
+        return arr;
+    }
+
     public DataUtil[] getNemiciPositionsFlat(){
         DataUtil[] result = new DataUtil[nemici.size()];
         Nemico nem;
@@ -124,6 +145,10 @@ public class Level {
             result[n]=new DataUtil(nem.getId(), nem.getX(), nem.getY(), nem.getCurrentAnimation());
         }
         return result;
+    }
+
+    public PortaTile getPorta(){
+        return porta;
     }
 
     public List<Tile> getRow(int y) {

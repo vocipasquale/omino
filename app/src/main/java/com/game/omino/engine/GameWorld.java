@@ -6,6 +6,7 @@ import com.game.omino.entities.Entity;
 import com.game.omino.entities.Nemico;
 import com.game.omino.entities.Omino;
 import com.game.omino.levels.Level;
+import com.game.omino.scene.tiles.CassaTile;
 import com.game.omino.scene.tiles.MattoneTile;
 import com.game.omino.scene.tiles.NullTile;
 import com.game.omino.scene.tiles.Tile;
@@ -68,7 +69,7 @@ public class GameWorld {
         boolean trovato = false;
         for (int i = 0; i < 2 && !trovato; i++) {
             t = area.get(i);
-            if (t instanceof NullTile) {
+            if (t instanceof NullTile || t instanceof CassaTile) {
                 if (Math.abs(t.getX() - entity.getX()) <= TILE_SIZE / 4) {
                     entity.setX(t.getX()); //allineamento
                     entity.setFalling(true);

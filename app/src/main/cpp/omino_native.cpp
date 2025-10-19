@@ -88,18 +88,24 @@ struct Scala {
     Vec2 pos;
     std::string textureKey;
 };
-/*
-struct Mattone {
+
+struct Porta {
     Vec2 pos;
     std::string textureKey;
 };
-*/
+
+struct Cassa {
+    Vec2 pos;
+    std::string textureKey;
+};
 
 static Entity omino;
 static std::unordered_map<int, Entity> nemici;
 //static std::vector<Mattone> mattoni;
 static std::unordered_map<int, Entity> mattoni;
 static std::vector<Scala> scale;
+static Porta porta;
+static std::vector<Cassa> casse;
 
 // Gestione textures
 static std::map<std::string, Texture> textures;
@@ -275,19 +281,11 @@ Java_com_game_omino_render_GameRenderer_nativeInit(JNIEnv* env, jclass, jobject 
     textures["mattone_erasing_1"]    = loadTextureFromAsset("tiles/mattone_erasing_1.png");
     textures["mattone_erasing_2"]    = loadTextureFromAsset("tiles/mattone_erasing_2.png");
     textures["mattone_erasing_3"]    = loadTextureFromAsset("tiles/mattone_erasing_3.png");
-    textures["mattone_erasing_4"]    = loadTextureFromAsset("tiles/mattone_erasing_4.png");
-    textures["mattone_erasing_5"]    = loadTextureFromAsset("tiles/mattone_erasing_5.png");
-    textures["mattone_erasing_6"]    = loadTextureFromAsset("tiles/mattone_erasing_6.png");
-    textures["mattone_erasing_7"]    = loadTextureFromAsset("tiles/mattone_erasing_7.png");
-    textures["mattone_erasing_8"]    = loadTextureFromAsset("tiles/mattone_erasing_8.png");
-    textures["mattone_erasing_9"]    = loadTextureFromAsset("tiles/mattone_erasing_9.png");
-    textures["mattone_erasing_10"]    = loadTextureFromAsset("tiles/mattone_erasing_10.png");
-    textures["mattone_erasing_11"]    = loadTextureFromAsset("tiles/mattone_erasing_11.png");
-    textures["mattone_erasing_12"]    = loadTextureFromAsset("tiles/mattone_erasing_12.png");
-    textures["mattone_erasing_13"]    = loadTextureFromAsset("tiles/mattone_erasing_13.png");
-    textures["mattone_erasing_14"]    = loadTextureFromAsset("tiles/mattone_erasing_14.png");
-    textures["mattone_erasing_15"]    = loadTextureFromAsset("tiles/mattone_erasing_15.png");
-    textures["mattone_erasing_16"]    = loadTextureFromAsset("tiles/mattone_erasing_16.png");
+
+    textures["cassa"]    = loadTextureFromAsset("tiles/cassa.png");
+
+    textures["porta_chiusa"]    = loadTextureFromAsset("tiles/porta_chiusa.png");
+    textures["porta_aperta"]    = loadTextureFromAsset("tiles/porta_aperta.png");
 
     textures["scala"]      = loadTextureFromAsset("tiles/scala.png");
 
@@ -455,6 +453,30 @@ Java_com_game_omino_render_GameRenderer_nativeSetScalaPositions(JNIEnv* env, jcl
 
 
 extern "C" JNIEXPORT void JNICALL
+Java_com_game_omino_render_GameRenderer_nativeSetCassaPositions(JNIEnv* env, jclass, jfloatArray arr) {
+    jsize len = env->GetArrayLength(arr);
+    jfloat* data = env->GetFloatArrayElements(arr, nullptr);
+    casse.clear();
+    for (int i = 0; i < len; i += 2) {
+        casse.push_back({data[i], data[i+1]});
+    }
+    env->ReleaseFloatArrayElements(arr, data, 0);
+}
+
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_game_omino_render_GameRenderer_nativeSetPortaPositionsAndAnimation(JNIEnv* env, jclass, jfloat x, jfloat y, jstring currentAnimation) {
+       const char* chars = env->GetStringUTFChars(currentAnimation, nullptr);
+
+       porta.pos.x = x;
+       porta.pos.y = y;
+       porta.textureKey = std::string(chars);
+
+       env->ReleaseStringUTFChars(currentAnimation, chars); // Rilascia la memoria
+}
+
+
+extern "C" JNIEXPORT void JNICALL
 Java_com_game_omino_render_GameRenderer_nativeRender(JNIEnv* env, jclass) {
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -469,7 +491,7 @@ Java_com_game_omino_render_GameRenderer_nativeRender(JNIEnv* env, jclass) {
             Entity& m = pair.second; // L'oggetto Entity
 
                 if(m.currentAn == "mattone_erasing" ){
-                        changeFrameSet(16, m);
+                        changeFrameSet(3, m);
                         key = m.currentAn + "_" + std::to_string(m.currentFrame);
                 }else {
                         key = m.currentAn;
@@ -514,7 +536,18 @@ Java_com_game_omino_render_GameRenderer_nativeRender(JNIEnv* env, jclass) {
             }
 
             drawQuad(textures[key], n.pos.x, n.pos.y);
-        }
+    }
+
+
+
+    //disegna porta...
+    drawQuad(textures[porta.textureKey], porta.pos.x, porta.pos.y);
+
+    //disegna casse...
+    for (auto& c : casse){
+        drawQuad(textures["cassa"], c.pos.x, c.pos.y);
+    }
+
 
 }
 
