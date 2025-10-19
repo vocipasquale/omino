@@ -18,11 +18,12 @@ public abstract class Entity {
     protected Tile[] tilesOverlapping = new Tile[2]; //[0] tile sopra (Yt < Ye), [1] tile sotto (Y
 
     protected boolean falling = false; //sta cadendo
-   // protected boolean onMattone = false;
-   // protected boolean onScala = false;
+
+    protected String currentAnimation;
 
 
-    public Entity(int x, int y, int w, int h){
+    public Entity(String currentAnimation, int x, int y, int w, int h){
+        this.currentAnimation=currentAnimation;
         this.x=x;
         this.y=y;
         this.w=w;
@@ -33,6 +34,10 @@ public abstract class Entity {
     abstract void giu();
     abstract void sinistra();
     abstract void destra();
+    abstract void stopSu();
+    abstract void stopGiu();
+    abstract void stopDestra();
+    abstract void stopSinistra();
 
     public int getX() {
         return x;
@@ -66,14 +71,14 @@ public abstract class Entity {
         this.h = h;
     }
 
-    public boolean isFalling() {
-        return falling;
-    }
 
     public void setFalling(boolean falling) {
         this.falling = falling;
     }
 
+    public boolean isFalling() {
+        return falling;
+    }
 
     public void setTilesOverlapping(Tile[] overlappingScala) {
         this.tilesOverlapping = overlappingScala;
@@ -112,15 +117,12 @@ public abstract class Entity {
         this.tilesLeft = tilesLeft;
     }
 
-//    public boolean isOnTiles() {
-//        setTilesDown(GameWorld.getInstance().getLevel().getTilesDown(this));
-//
-//        return tilesDown[0] != null && !(tilesDown[0] instanceof NullTile);
-//    }
-//
-//    public boolean isOverTiles() {
-//        setTilesOverlapping(GameWorld.getInstance().getLevel().getTilesOverlapping(this));
-//
-//        return tilesOverlapping[0] != null && !(tilesOverlapping[0] instanceof NullTile);
-//    }
+    public String getCurrentAnimation() {
+        return currentAnimation;
+    }
+
+    public void setCurrentAnimation(String currentAnimation) {
+        this.currentAnimation=currentAnimation;
+    }
+
 }

@@ -9,6 +9,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.egl.EGLConfig;
 
+import com.game.omino.utils.DataUtil;
+
 public class GameRenderer implements GLSurfaceView.Renderer {
 
     static {
@@ -27,8 +29,9 @@ public class GameRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         if (!initialized.get()) {
             nativeInit(assetManager);
+            nativeSetScalaPositions(GameWorld.getInstance().getLevel().getScalaPositionsFlat());
+            nativeSetMattonePositions(GameWorld.getInstance().getLevel().getMattonePositionsFlat());
             initialized.set(true);
-
         }
     }
 
@@ -51,9 +54,11 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         if (SceneManager.getCurrent() instanceof PlayScene) {
             // Passaggio dati a C++
             Omino o = GameWorld.getInstance().getOmino();
-            nativeSetOminoPosition(o.getX(), o.getY());
-            nativeSetMattonePositions(GameWorld.getInstance().getLevel().getMattonePositionsFlat());
-            nativeSetScalaPositions(GameWorld.getInstance().getLevel().getScalaPositionsFlat());
+            nativeSetOminoPositionsAndAnimation(o.getX(), o.getY(), o.getCurrentAnimation());
+            if(GameWorld.getInstance().getLevel().getMattoneAnimationsFlat().length > 0){
+                nativeSetMattoneAnimations(GameWorld.getInstance().getLevel().getMattoneAnimationsFlat());
+            }
+            nativeSetNemiciPositionsAndAnimation(GameWorld.getInstance().getLevel().getNemiciPositionsFlat());
 
             // render nativo OpenGL
             nativeRender();
@@ -66,8 +71,10 @@ public class GameRenderer implements GLSurfaceView.Renderer {
     private static native void nativeRender();
 
     // JNI helpers da implementare in C++:
-    private static native void nativeSetOminoPosition(float x, float y);
-    private static native void nativeSetMattonePositions(float[] positions);
+    private static native void nativeSetOminoPositionsAndAnimation(float x, float y, String currentAnimation);
+    private static native void nativeSetNemiciPositionsAndAnimation(DataUtil[] positions);
+    private static native void nativeSetMattonePositions(DataUtil[] positions);
+    private static native void nativeSetMattoneAnimations(DataUtil[] positions);
     private static native void nativeSetScalaPositions(float[] positions);
 }
 
