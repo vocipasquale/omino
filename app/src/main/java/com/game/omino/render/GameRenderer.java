@@ -4,7 +4,7 @@ import android.content.res.AssetManager;
 import android.opengl.GLSurfaceView;
 import com.game.omino.engine.GameWorld;
 import com.game.omino.entities.Omino;
-import com.game.omino.scene.*;
+//import com.game.omino.scene.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.egl.EGLConfig;
@@ -29,11 +29,15 @@ public class GameRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         if (!initialized.get()) {
-            nativeInit(assetManager);
-            nativeSetScalaPositions(GameWorld.getInstance().getLevel().getScalaPositionsFlat());
-            nativeSetMattonePositions(GameWorld.getInstance().getLevel().getMattonePositionsFlat());
+            initScreen();
             initialized.set(true);
         }
+    }
+
+    public void initScreen() {
+        nativeInit(assetManager);
+        nativeSetScalaPositions(GameWorld.getInstance().getLevel().getScalaPositionsFlat());
+        nativeSetMattonePositions(GameWorld.getInstance().getLevel().getMattonePositionsFlat());
     }
 
     @Override
@@ -46,29 +50,35 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         float deltaTime = 1f / 60f; // fisso per ora
 
         // logica e rendering passano dal SceneManager
-        SceneManager.update(deltaTime);
-        SceneManager.render();
+       // SceneManager.update(deltaTime);
+       // SceneManager.render();
+
+        GameWorld.getInstance().update(deltaTime);
+        renderWorld(GameWorld.getInstance());
     }
 
     public static void renderWorld(GameWorld world) {
         // se la scena è PlayScene -> world aggiornato, passo a C++
-        if (SceneManager.getCurrent() instanceof PlayScene) {
+        //if (SceneManager.getCurrent() instanceof PlayScene) {
             // Passaggio dati a C++
-            Omino o = GameWorld.getInstance().getOmino();
+            Omino o = world.getOmino();
             nativeSetOminoPositionsAndAnimation(o.getX(), o.getY(), o.getCurrentAnimation());
-            if(GameWorld.getInstance().getLevel().getMattoneAnimationsFlat().length > 0){
-                nativeSetMattoneAnimations(GameWorld.getInstance().getLevel().getMattoneAnimationsFlat());
+            if(world.getLevel().getMattoneAnimationsFlat().length > 0){
+                nativeSetMattoneAnimations(world.getLevel().getMattoneAnimationsFlat());
             }
-            nativeSetNemiciPositionsAndAnimation(GameWorld.getInstance().getLevel().getNemiciPositionsFlat());
+            nativeSetNemiciPositionsAndAnimation(world.getLevel().getNemiciPositionsFlat());
 
-            PortaTile portaLevel = GameWorld.getInstance().getLevel().getPorta();
-            nativeSetPortaPositionsAndAnimation(portaLevel.getX(), portaLevel.getY(), portaLevel.getCurrentAnimation());
-
-            nativeSetCassaPositions(GameWorld.getInstance().getLevel().getCassaPositionsFlat());
+            PortaTile portaLevel = world.getLevel().getPorta();
+            if(portaLevel != null) {
+                nativeSetPortaPositionsAndAnimation(portaLevel.getX(), portaLevel.getY(), portaLevel.getCurrentAnimation());
+            }else{
+                nativeClearPorta();
+            }
+            nativeSetCassaPositions(world.getLevel().getCassaPositionsFlat());
 
             // render nativo OpenGL
             nativeRender();
-        }
+        //}
     }
 
     // JNI stubs
@@ -84,6 +94,7 @@ public class GameRenderer implements GLSurfaceView.Renderer {
     private static native void nativeSetScalaPositions(float[] positions);
 
     private static native void nativeSetPortaPositionsAndAnimation(float x, float y, String currentAnimation);
+    private static native void nativeClearPorta();
     private static native void nativeSetCassaPositions(float[] positions);
 }
 

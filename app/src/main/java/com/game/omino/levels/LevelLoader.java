@@ -1,6 +1,7 @@
 package com.game.omino.levels;
 
 import android.content.Context;
+import android.util.Log;
 import com.game.omino.entities.Nemico;
 import com.game.omino.entities.Omino;
 import com.game.omino.scene.tiles.*;
@@ -35,7 +36,7 @@ public  class LevelLoader {
         List<String> righe = readAssetFile(context, "levels/level_"+levelNum);
         Tile[][] matrix = new Tile[TILES_4_COLUMN][TILES_4_ROW];
         String riga = "";
-        Omino omino= new Omino(0, 0, 0, 0);
+        Omino omino = new Omino(0, 0, 0, 0);
         List<Nemico> nemici = new ArrayList<>();
         int m=1;
 
@@ -45,8 +46,9 @@ public  class LevelLoader {
                 matrix[r][c] = decodeChar(riga.charAt(c), r, c, omino, nemici, m++);
             }
         }
-
-        return new Level(omino, nemici, matrix);
+        Log.i("loadLevelFromFile", "caricato livello "+levelNum);
+        return new Level(omino, nemici, matrix, context);
+        // new Omino(omino.getX(), omino.getY(), omino.getW(), omino.getH()
     }
 
     private static Tile decodeChar(char c, int y, int x, Omino omino, List<Nemico> nemici, int m) throws Exception {
@@ -64,7 +66,7 @@ public  class LevelLoader {
             return new NullTile(x*TILE_SIZE,y*TILE_SIZE,TILE_SIZE,TILE_SIZE);
         }else if(c == '1' || c == '2' || c == '3' || c == '4' || c == '5' || c == '6'
                 || c == '7' || c == '8' || c == '9'){
-            nemici.add(new Nemico(c, x*TILE_SIZE,y*TILE_SIZE,TILE_SIZE,TILE_SIZE, omino));
+            nemici.add(new Nemico(c, x*TILE_SIZE,y*TILE_SIZE, TILE_SIZE, TILE_SIZE, omino));
             return new NullTile(x*TILE_SIZE,y*TILE_SIZE,TILE_SIZE,TILE_SIZE);
         }else if(c == 'P'){
             return new PortaTile(x*TILE_SIZE,y*TILE_SIZE,TILE_SIZE,TILE_SIZE);

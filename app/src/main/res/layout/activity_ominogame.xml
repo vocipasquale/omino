@@ -12,7 +12,9 @@
             android:id="@+id/game_surface"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:visibility="gone"
+    />
 
     <!-- Barra dei comandi con GridLayout -->
     <GridLayout
@@ -23,7 +25,9 @@
             android:layout_marginBottom="4dp"
             android:layout_marginTop="4dp"
             android:rowCount="2"
-            android:columnCount="3">
+            android:columnCount="3"
+            android:visibility="gone"
+    >
 
         <!-- Pulsante sinistra -->
         <com.google.android.material.button.MaterialButton
@@ -87,4 +91,42 @@
 
     </GridLayout>
 
+
+    <FrameLayout
+            android:id="@+id/game_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            android:background="@color/arcade_bg">
+
+        <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="center"
+                android:background="@color/arcade_bg"
+                android:padding="16dp"
+                android:layout_margin="16dp"
+                android:gravity="center">
+
+            <com.google.android.material.button.MaterialButton
+                    android:id="@+id/gameover_button"
+                    style="@style/ButtonArcade"
+                    android:layout_width="@dimen/arcade_button_width"
+                    android:layout_height="@dimen/arcade_button_height"
+                    android:visibility="gone"
+                    android:text="@string/game_over"/>
+            <com.google.android.material.button.MaterialButton
+                    android:id="@+id/gamefinish_button"
+                    style="@style/ButtonArcade"
+                    android:layout_width="@dimen/arcade_button_width"
+                    android:layout_height="@dimen/arcade_button_height"
+                    android:visibility="gone"
+                    android:text="@string/game_finish"/>
+        </LinearLayout>
+
+    </FrameLayout>
+
+
 </LinearLayout>
+

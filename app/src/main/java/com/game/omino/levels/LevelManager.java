@@ -3,28 +3,37 @@ package com.game.omino.levels;
 import android.content.Context;
 
 public class LevelManager {
+    private static LevelManager instance;
+    private static Context context;
 
-    private static Level currentLevel;
-    private static String CURRENT_LEVEL_NUM = "0";
+    private static int CURRENT_LEVEL_NUM = 0;
 
-    public static Level startLevel(Context context) throws Exception {
-        if(currentLevel == null){
-            currentLevel = LevelLoader.loadLevelFromFile(context, CURRENT_LEVEL_NUM);
+    private LevelManager(Context context){
+        this.context = context;
+    }
+
+    public static LevelManager getInstance(Context context){
+        if (instance == null){
+            instance = new LevelManager(context);
         }
-
-        return currentLevel;
+        return instance;
     }
 
     public static void stopLevel(){
 
     }
 
-    public static void startNextLevel(){
+    public static Level startNextLevel()  throws Exception{
+        CURRENT_LEVEL_NUM++;
+        return LevelLoader.loadLevelFromFile(context, ""+CURRENT_LEVEL_NUM);
+    }
 
+    public static Level reloadCurrentLevel()  throws Exception{
+        return LevelLoader.loadLevelFromFile(context, ""+CURRENT_LEVEL_NUM);
     }
 
 
-    private void loadLevel(String level){
-
+    public void reset() {
+        CURRENT_LEVEL_NUM=0;
     }
 }

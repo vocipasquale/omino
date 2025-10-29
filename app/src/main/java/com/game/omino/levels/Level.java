@@ -1,5 +1,6 @@
 package com.game.omino.levels;
 
+import android.content.Context;
 import android.util.Log;
 import com.game.omino.entities.*;
 import com.game.omino.scene.tiles.*;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.game.omino.utils.Constants.*;
 
@@ -18,15 +20,20 @@ public class Level {
     Map<Integer, MattoneTile> mattoniErasing = new HashMap<>();
     private List<Nemico> nemici;
     private List<CassaTile> casse = new ArrayList<>();
-    private PortaTile porta;
+    private PortaTile porta = null;
+
+    private int numCasse = 0;
+
+    private Context context;
 
 
     private Omino omino;
 
-    public Level(Omino omino, List<Nemico> nemici, Tile[][] tilesMatrix) {
+    public Level(Omino omino, List<Nemico> nemici, Tile[][] tilesMatrix, Context context) {
         this.nemici = nemici;
         this.omino = omino;
         setTilesMatrix(tilesMatrix);
+        this.context=context;
     }
 
 
@@ -59,6 +66,7 @@ public class Level {
                     cassaInstance = (CassaTile) tilesMatrix[r][c];
                     row.add(cassaInstance);
                     casse.add(cassaInstance);
+                    numCasse++;
                 }
             }
             tiles.add(row);
@@ -82,15 +90,6 @@ public class Level {
 
     }
 
-//    public float[] getMattonePositionsFlat() {
-//        List<MattoneTile> mattoni = getMattoni();
-//        float[] arr = new float[mattoni.size() * 2];
-//        for (int i = 0; i < mattoni.size(); i++) {
-//            arr[i * 2] = mattoni.get(i).getX();
-//            arr[i * 2 + 1] = mattoni.get(i).getY();
-//        }
-//        return arr;
-//    }
 
     public DataUtil[] getMattonePositionsFlat(){
         List<MattoneTile> mattoni = getMattoni();
@@ -151,6 +150,24 @@ public class Level {
         return porta;
     }
 
+    public List<CassaTile> getCasse(){ return casse; }
+
+    public int getNumCasse(){ return numCasse; }
+    public void removeCassa(CassaTile cassa){
+        casse.remove(cassa);
+
+        //sostituisco con NullTile...
+        getRow(cassa.getY())
+                .set(cassa.getX()/TILE_SIZE, new NullTile(cassa.getX(), cassa.getY(), cassa.getW(), cassa.getH()));
+    }
+    public void addCassa(CassaTile cassa){
+        casse.add(cassa);
+
+        //sostituisco con CassaTile...
+        getRow(cassa.getY())
+                .set(cassa.getX()/TILE_SIZE, new CassaTile(cassa.getX(), cassa.getY(), cassa.getW(), cassa.getH()));
+    }
+
     public List<Tile> getRow(int y) {
         return tiles.get(y / TILE_SIZE);
     }
@@ -172,11 +189,25 @@ public class Level {
      */
     public List<Tile> getArea(int y, int x) {
         List<Tile> area = new ArrayList<>();
-        area.add(tiles.get(y / TILE_SIZE).get(x / TILE_SIZE));
-        area.add(tiles.get(y / TILE_SIZE).get((x + TILE_SIZE) / TILE_SIZE));
-        area.add(tiles.get(((y + TILE_SIZE) / TILE_SIZE)).get(x / TILE_SIZE));
-        area.add(tiles.get(((y + TILE_SIZE) / TILE_SIZE)).get((x + TILE_SIZE) / TILE_SIZE));
+
+        //prima tile
+        area.add(getTileArea(y / TILE_SIZE, x / TILE_SIZE));
+        //seconda tile
+        area.add(getTileArea(y / TILE_SIZE, (x + TILE_SIZE) / TILE_SIZE));
+        //terza tile
+        area.add(getTileArea(((y + TILE_SIZE) / TILE_SIZE), x / TILE_SIZE));
+        //quarta tile
+        area.add(getTileArea(((y + TILE_SIZE) / TILE_SIZE), (x + TILE_SIZE) / TILE_SIZE));
+
         return area;
+    }
+
+    private Tile getTileArea(int y, int x){
+        if(y>=TILES_4_COLUMN || x>=TILES_4_ROW){
+            return new NullTile(x, y, TILE_SIZE, TILE_SIZE);
+        }else {
+            return tiles.get(y).get(x);
+        }
     }
 
     public boolean isFreeArea(int y, int x) {
@@ -256,16 +287,22 @@ public class Level {
         return result;
     }
 
-    public MattoneTile getMattoneErasing(Integer id) {
-        return mattoniErasing.get(id);
-    }
-
     public MattoneTile addMattoneErasing(Integer id, MattoneTile mattone) {
         return mattoniErasing.put(id, mattone);
     }
 
-    public MattoneTile removeMattoneErasing(Integer id){
-        return mattoniErasing.remove(id);
+    public Nemico getNemiciDown(int y, int x){
+        AtomicReference<Nemico> result = new AtomicReference<>();
+        result.set(null);
+        nemici.forEach(n -> {
+            if(Math.abs(n.getY() - y)<TOLERANCE
+                    && ((Math.abs(n.getX()-x)<TOLERANCE) || (Math.abs(n.getX()+TILE_SIZE-x)<TOLERANCE))
+            ){
+                result.set(n);
+            }
+        });
+
+        return result.get();
     }
 
     public List<Nemico> getNemici() {
@@ -273,4 +310,5 @@ public class Level {
     }
 
 
+    public Context getContext() { return context; }
 }
