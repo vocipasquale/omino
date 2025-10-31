@@ -22,7 +22,7 @@ public class GameWorld {
 
     private static int SCORE = 0;
 
-    private static int OMINO_LIFE = 3;
+    private static int OMINO_LIVES = 3;
     private GameEventListener listener;
 
 
@@ -37,11 +37,15 @@ public class GameWorld {
 
     public static void reset() {
         SCORE = 0;
-        OMINO_LIFE = 3;
+        OMINO_LIVES = 3;
     }
 
     public Omino getOmino() {
         return omino;
+    }
+
+    public String getOminoLives(){
+        return ""+ OMINO_LIVES;
     }
 
     public Level getLevel() {
@@ -53,10 +57,16 @@ public class GameWorld {
         if (omino.getY() > SCREEN_HEIGHT - omino.getH()) {
             omino.setY(SCREEN_HEIGHT - omino.getH());
             return;
-
         }
-        // omino è dentro la schermata...
+        //sfora a sinistra...
+        if(omino.getX()<-TILE_SIZE+TOLERANCE){
+            omino.setX(SCREEN_WIDTH-TILE_SIZE);
+        }
 
+        //sfora a destra
+        if(omino.getX()>SCREEN_WIDTH){
+            omino.setX(0);
+        }
         //applico gravità se l'area è libera...
         gravita(omino);
 
@@ -66,12 +76,13 @@ public class GameWorld {
             level.removeCassa(cassa);
             omino.addCassa(cassa);
             SCORE += CASSA_SCORE;
+            listener.onScoreUpdate(getOminoScore());
         }
 
         //aumento di una vita...
         if (SCORE > 0 && SCORE % CASSA_SCORE_LIFE == 0) {
-            OMINO_LIFE++;
-            //effetto sonoro
+            OMINO_LIVES++;
+            listener.onLiveUpdate(getOminoLives());
         }
 
 
@@ -134,7 +145,7 @@ public class GameWorld {
         boolean trovato = false;
         for (int i = 0; i < 2 && !trovato; i++) {
             t = area.get(i);
-            if ((t instanceof NullTile || t instanceof CassaTile) && level.getNemiciDown(entity.getY() + entity.getH(), entity.getX())==null) {
+            if ((t instanceof NullTile || t instanceof CassaTile) && level.getNemiciDown(entity.getY(), entity.getX())==null) {
                 if (Math.abs(t.getX() - entity.getX()) <= TILE_SIZE / 4) {
                     entity.setX(t.getX()); //allineamento
                     entity.setFalling(true);
@@ -150,26 +161,24 @@ public class GameWorld {
         }
 
         if(entity.isFalling()) {
-            Nemico n = level.getNemiciDown(entity.getY() + entity.getH(), entity.getX());
+            Nemico n = level.getNemiciDown(entity.getY(), entity.getX());
             if(n != null){
                 entity.setY(n.getY() - entity.getH());
                 entity.setFalling(false);
             }
         }
-
-
-
     }
 
     private void entityKilled(Entity entity) {
         if (entity instanceof Omino) {
             // OMINO DEAD!!!!!
             Log.w("GameWorld", "OMINO MOOOOORTOOOOO!!!!!!!.");
-            OMINO_LIFE--;
+            OMINO_LIVES--;
+            listener.onLiveUpdate(""+ OMINO_LIVES);
 
             //effetto sonoro...
 
-            if (OMINO_LIFE <= 0) {
+            if (OMINO_LIVES <= 0) {
                 //GAME OVER
                 listener.onGameOver();
             } else {
@@ -249,5 +258,9 @@ public class GameWorld {
             }
         }
 
+    }
+
+    public String getOminoScore() {
+        return ""+SCORE;
     }
 }

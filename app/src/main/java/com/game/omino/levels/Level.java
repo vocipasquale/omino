@@ -169,7 +169,11 @@ public class Level {
     }
 
     public List<Tile> getRow(int y) {
-        return tiles.get(y / TILE_SIZE);
+        y=y/TILE_SIZE;
+        if(y>=TILES_4_COLUMN) {
+            y=TILES_4_COLUMN-1;
+        }
+        return tiles.get(y);
     }
 
     public List<Tile> getColumn(int x) {
@@ -295,8 +299,9 @@ public class Level {
         AtomicReference<Nemico> result = new AtomicReference<>();
         result.set(null);
         nemici.forEach(n -> {
-            if(Math.abs(n.getY() - y)<TOLERANCE
+            if(Math.abs((n.getY()-(y+TILE_SIZE)))<TOLERANCE
                     && ((Math.abs(n.getX()-x)<TOLERANCE) || (Math.abs(n.getX()+TILE_SIZE-x)<TOLERANCE))
+                    //Math.abs((x-TILE_SIZE/2)-n.getX()-(TILE_SIZE/2))<TOLERANCE
             ){
                 result.set(n);
             }

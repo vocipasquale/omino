@@ -6,12 +6,12 @@ import android.os.Bundle;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
+import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -29,6 +29,7 @@ public class OminoGameActivity extends AppCompatActivity implements GameEventLis
 
 	private GameSurfaceView gameView;
 	private GridLayout controlBar;
+	private TextView levelTxt, livesTxt, scoreTxt;
 
 	// Handler a livello di classe (main thread)
 	private final Handler handler = new Handler(Looper.getMainLooper());
@@ -41,6 +42,9 @@ public class OminoGameActivity extends AppCompatActivity implements GameEventLis
 
 		gameView = findViewById(R.id.game_surface);
 		controlBar = findViewById(R.id.control_bar);
+		levelTxt = findViewById(R.id.level_txt);
+		livesTxt = findViewById(R.id.lives_txt);
+		scoreTxt = findViewById(R.id.score_txt);
 
 		gameView.setVisibility(View.VISIBLE);
 		controlBar.setVisibility(View.VISIBLE);
@@ -49,6 +53,9 @@ public class OminoGameActivity extends AppCompatActivity implements GameEventLis
 		try {
             //SceneManager.setScene(new PlayScene(LevelManager.getInstance(getBaseContext()).startNextLevel()));
 			GameWorld.getInstance().loadLevel(LevelManager.getInstance(getBaseContext()).startNextLevel());
+			updateLeveltxt();
+			updateLivestxt(GameWorld.getInstance().getOminoLives());
+			updateScoretxt(GameWorld.getInstance().getOminoScore());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -107,6 +114,18 @@ public class OminoGameActivity extends AppCompatActivity implements GameEventLis
 			}
 		});
 
+	}
+
+	private void updateLivestxt(String s) {
+		livesTxt.setText("lives "+ s);
+	}
+
+	private void updateLeveltxt() {
+		levelTxt.setText("level "+ LevelManager.getInstance(getBaseContext()).getCurrentLevelNum());
+	}
+
+	private void updateScoretxt(String ominoScore) {
+		scoreTxt.setText(ominoScore);
 	}
 
 	/**
@@ -204,6 +223,10 @@ public class OminoGameActivity extends AppCompatActivity implements GameEventLis
 				gameView.setVisibility(View.INVISIBLE);
 				controlBar.setVisibility(View.INVISIBLE);
 
+				updateLivestxt(GameWorld.getInstance().getOminoLives());
+				updateLeveltxt();
+				updateScoretxt(GameWorld.getInstance().getOminoScore());
+
 				// Imposta il listener per il pulsante di continuazione
 				gameOverButton.setOnClickListener(new View.OnClickListener() {
 					@Override
@@ -215,9 +238,11 @@ public class OminoGameActivity extends AppCompatActivity implements GameEventLis
 		});
 	}
 
-	@Override
-	public void onLifeLost() {
 
+
+	@Override
+	public void onLiveUpdate(String s) {
+		updateLivestxt(s);
 	}
 
 	@Override
@@ -225,15 +250,21 @@ public class OminoGameActivity extends AppCompatActivity implements GameEventLis
 		try {
 			GameWorld.getInstance().loadLevel(LevelManager.getInstance(getBaseContext()).startNextLevel());
 			gameView.initScreen();
+			updateLeveltxt();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	@Override
+	public void onScoreUpdate(String score) {
+		updateScoretxt(score);
+	}
+
+	@Override
 	public void onGameFinished() {
 		LevelManager.getInstance(getBaseContext()).reset();
-		GameWorld.getInstance().reset();
+
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -258,4 +289,7 @@ public class OminoGameActivity extends AppCompatActivity implements GameEventLis
 			}
 		});
 	}
+
+
+
 }

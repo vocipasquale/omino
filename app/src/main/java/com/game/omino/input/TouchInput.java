@@ -11,7 +11,7 @@ public class TouchInput {
         int action = event.getActionMasked();
         float x = event.getX();
         float y = event.getY();
-        nativeTouch(x, y, action);
+       // nativeTouch(x, y, action);
     }
 
     private static native void nativeTouch(float x, float y, int action);

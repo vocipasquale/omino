@@ -36,4 +36,6 @@ public class LevelManager {
     public void reset() {
         CURRENT_LEVEL_NUM=0;
     }
+
+    public String getCurrentLevelNum(){ return ""+CURRENT_LEVEL_NUM; }
 }
