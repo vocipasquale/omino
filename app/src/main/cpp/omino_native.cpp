@@ -287,18 +287,31 @@ static void disegnaScale(){
 
 static void disegnaMattoni(){
     std::string key = "";
+
     for (auto& pair : mattoni) {
             int id = pair.first;          // La chiave (id del nemico)
             Entity& m = pair.second; // L'oggetto Entity
 
-            if(m.currentAn == "mattone_erasing" ){
-               changeFrameSet(3, m);
+            if(m.currentAn == "mattone_erasing_dx" || m.currentAn == "mattone_erasing_sx" ){
+               changeFrameSet(7, m);
                key = m.currentAn + "_" + std::to_string(m.currentFrame);
+               if(m.currentFrame==6){
+                    m.currentFrame=5;
+               }
+
+               if(m.currentFrame<=4){
+              // __android_log_print(ANDROID_LOG_ERROR, "mattone", "texture: %s %f %f", key.c_str(), m.pos.x, (m.pos.y-64));
+                drawQuad(textures[key], m.pos.x, (m.pos.y-64));
+
+              //  __android_log_print(ANDROID_LOG_ERROR, "mattone", "texture: mattone %f %f", m.pos.x, m.pos.y);
+                drawQuad(textures["mattone"], m.pos.x, m.pos.y);
+               }
+
             }else {
                key = m.currentAn;
+               m.currentFrame=1;
+               drawQuad(textures[key], m.pos.x, m.pos.y);
             }
-         //__android_log_print(ANDROID_LOG_ERROR, "mattone", "texture: %s %f %f", key.c_str(), m.pos.y, m.pos.x);
-           drawQuad(textures[key], m.pos.x, m.pos.y);
     }
 }
 
@@ -350,9 +363,16 @@ Java_com_game_omino_render_GameRenderer_nativeInit(JNIEnv* env, jclass, jobject 
     textures["nemico_run_down_2"] = loadTextureFromAsset("sprites/nemico_up_1.png");
 
     textures["mattone"]    = loadTextureFromAsset("tiles/mattone.png");
-    textures["mattone_erasing_1"]    = loadTextureFromAsset("tiles/mattone_erasing_1.png");
-    textures["mattone_erasing_2"]    = loadTextureFromAsset("tiles/mattone_erasing_2.png");
-    textures["mattone_erasing_3"]    = loadTextureFromAsset("tiles/mattone_erasing_3.png");
+
+    textures["mattone_erasing_dx_1"] = loadTextureFromAsset("tiles/mattone_erasing_dx_1.png");
+    textures["mattone_erasing_dx_2"] = loadTextureFromAsset("tiles/mattone_erasing_dx_2.png");
+    textures["mattone_erasing_dx_3"] = loadTextureFromAsset("tiles/mattone_erasing_dx_3.png");
+    textures["mattone_erasing_dx_4"] = loadTextureFromAsset("tiles/mattone_erasing_dx_4.png");
+
+    textures["mattone_erasing_sx_1"] = loadTextureFromAsset("tiles/mattone_erasing_sx_1.png");
+    textures["mattone_erasing_sx_2"] = loadTextureFromAsset("tiles/mattone_erasing_sx_2.png");
+    textures["mattone_erasing_sx_3"] = loadTextureFromAsset("tiles/mattone_erasing_sx_3.png");
+    textures["mattone_erasing_sx_4"] = loadTextureFromAsset("tiles/mattone_erasing_sx_4.png");
 
     textures["cassa"]    = loadTextureFromAsset("tiles/cassa.png");
 

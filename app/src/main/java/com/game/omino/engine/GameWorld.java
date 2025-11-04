@@ -108,6 +108,7 @@ public class GameWorld {
             if (level.getPorta() != null) {//se non è l'ultimo livello
                 level.getPorta().apri();
                 if (Math.abs(level.getPorta().getY() - omino.getY()) < TOLERANCE && Math.abs(omino.getX() - level.getPorta().getX()) < TOLERANCE) {//se omino entra nella porta aperta...
+
                     listener.onLevelPassed();
                 }
             } else {//omino ha raccolto tutte le casse ed ha finito il gioco!
@@ -119,11 +120,11 @@ public class GameWorld {
 
     }
 
-    private boolean isLevelPassed() {
-        PortaTile p = level.getPorta();
-        return p.isAperta()
-                && Math.abs(p.getY() - omino.getY()) < TOLERANCE && Math.abs(omino.getX() - p.getX()) < TOLERANCE;
-    }
+//    private boolean isLevelPassed() {
+//        PortaTile p = level.getPorta();
+//        return p.isAperta()
+//                && Math.abs(p.getY() - omino.getY()) < TOLERANCE && Math.abs(omino.getX() - p.getX()) < TOLERANCE;
+//    }
 
     private CassaTile checkOverCassa(Entity entity) {
         List<CassaTile> casse = level.getCasse();
@@ -226,7 +227,7 @@ public class GameWorld {
         if (m != null) {
             if (level.getRow(omino.getY()).get(m.getX() / TILE_SIZE) instanceof NullTile) {
                 rowDown.set(m.getX() / TILE_SIZE, new NullTile(m.getX(), m.getY(), m.getW(), m.getH()));
-                m.setCurrentAnimation(MattoneTile.MATTONE_ERASING_TX);
+                m.setCurrentAnimation(dx?MattoneTile.MATTONE_ERASING_DX_TX:MattoneTile.MATTONE_ERASING_SX_TX);
                 level.addMattoneErasing(m.getId(), m);
 
                 Handler handler = new Handler();
