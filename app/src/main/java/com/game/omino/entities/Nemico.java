@@ -1,6 +1,7 @@
 package com.game.omino.entities;
 
 import com.game.omino.engine.GameWorld;
+import com.game.omino.scene.tiles.CassaTile;
 import com.game.omino.scene.tiles.MattoneTile;
 import com.game.omino.scene.tiles.ScalaTile;
 import com.game.omino.scene.tiles.Tile;
@@ -8,9 +9,9 @@ import com.game.omino.scene.tiles.Tile;
 import java.util.List;
 
 import static com.game.omino.utils.Constants.*;
-import static com.game.omino.utils.Constants.STEP;
 
 public class Nemico extends Entity {
+
 
     private static final String IDLE_DX_TX = "nemico_idle_dx";
     private static final String IDLE_SX_TX = "nemico_idle_sx";
@@ -20,9 +21,11 @@ public class Nemico extends Entity {
     private static final String RUN_UP_TX = "nemico_run_up";
     private static final String RUN_DOWN_TX = "nemico_run_down";
     private static final String FALLING_TX = "nemico_falling";
-    private static final String NULL_TX = "sprite_null";
+    //public static final String VOID_TX = "void_texture";
 
     private int id=0;
+
+    private CassaTile cassa = null;
 
 
     private Omino omino; // Riferimento all'istanza di Omino
@@ -33,7 +36,6 @@ public class Nemico extends Entity {
         super("", x, y, w, h);
         id = Character.getNumericValue(charId);
         this.omino = omino; // Inizializza il riferimento a Omino
-
         currentAnimation = IDLE_DX_TX;
     }
 
@@ -81,7 +83,7 @@ public class Nemico extends Entity {
     @Override
     public void sinistra() {
         if (!falling) {
-            List<Tile> area = GameWorld.getInstance().getLevel().getArea(y+h/2, x - STEP_NEMICO);
+            List<Tile> area = GameWorld.getInstance().getLevel().getArea(y, x - STEP_NEMICO);
             if (area.get(0) instanceof MattoneTile) {
                 x = area.get(0).getX() + w;
             } else {
@@ -98,7 +100,7 @@ public class Nemico extends Entity {
     @Override
     public void destra() {
         if (!falling) {
-            List<Tile> area = GameWorld.getInstance().getLevel().getArea(y+h/2, x + w + STEP_NEMICO);
+            List<Tile> area = GameWorld.getInstance().getLevel().getArea(y, x + w + STEP_NEMICO);
             if (area.get(0) instanceof MattoneTile) {
                 x = area.get(0).getX() - w;
             } else {
@@ -132,45 +134,9 @@ public class Nemico extends Entity {
         // Logica per fermare il movimento verso Omino
     }
 
-    // Metodo per aggiornare la posizione del nemico
-//    public void aggiorna() {
-//        int diff = omino.getY()-this.getY();
-//        ScalaTile scala = null;
-//        if (diff == 0) {//sullo stesso piano
-//            if (omino.getX() < this.getX()) {
-//                sinistra();
-//            } else { //if (omino.getX() > this.getX()) {
-//                destra();
-//            }
-//        }else if (diff < 0){//su piani diversi: Omino sopra
-//            scala=cercaScala(1);//cerca scala per salire
-//
-//            if(scala!=null) {
-//                if (scala.getX() > x) {
-//                    destra();
-//                } else if (scala.getX() < x) {
-//                    sinistra();
-//                } else {//sopra la scala o sovrapposto
-//                    su();
-//                }
-//            }
-//        }else {//su piani diversi: Omino sotto
-//            scala=cercaScala(0);//cerca scala per scendere
-//
-//            if(scala!=null) {
-//                if (scala.getX() > x) {
-//                    destra();
-//                } else if (scala.getX() < x) {
-//                    sinistra();
-//                } else {//sopra la scala o sovrapposto
-//                    giu();
-//                }
-//            }
-//        }
-//
-//    }
 
-    public void aggiorna() {
+
+    public void avvicinaOmino() {
         int diff = omino.getY() - this.getY();
         ScalaTile scala = null;
 
@@ -195,6 +161,14 @@ public class Nemico extends Entity {
         }
     }
 
+    public CassaTile getCassa() {
+        return cassa;
+    }
+
+    public void setCassa(CassaTile cassa) {
+        this.cassa = cassa;
+    }
+
     private void muoviVersoScala(ScalaTile scala, int dir) {
 
      //   if (scala.getY() - y == 0) { //scala e nemico sullo stesso piano
@@ -209,14 +183,7 @@ public class Nemico extends Entity {
                     giu(); // scendi
                 }
             }
-//        }else{
-//
-//            if (dir==1) {
-//                su(); // sali
-//            } else {
-//                giu(); // scendi
-//            }
-//        }
+
     }
 
     private ScalaTile cercaScalaVicina(int dir) {//dir==0 --> giù; dir==1 --> su
@@ -237,4 +204,6 @@ public class Nemico extends Entity {
         }
         return scala;
     }
+
+
 }

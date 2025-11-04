@@ -1,5 +1,6 @@
 package com.game.omino.levels;
 
+import android.content.Context;
 import android.util.Log;
 import com.game.omino.entities.*;
 import com.game.omino.scene.tiles.*;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.game.omino.utils.Constants.*;
 
@@ -17,14 +19,21 @@ public class Level {
     private List<ScalaTile> scale = new ArrayList<>(); //le scal in un livello non cambiano mai!
     Map<Integer, MattoneTile> mattoniErasing = new HashMap<>();
     private List<Nemico> nemici;
+    private List<CassaTile> casse = new ArrayList<>();
+    private PortaTile porta = null;
+
+    private int numCasse = 0;
+
+    private Context context;
 
 
     private Omino omino;
 
-    public Level(Omino omino, List<Nemico> nemici, Tile[][] tilesMatrix) {
+    public Level(Omino omino, List<Nemico> nemici, Tile[][] tilesMatrix, Context context) {
         this.nemici = nemici;
         this.omino = omino;
         setTilesMatrix(tilesMatrix);
+        this.context=context;
     }
 
 
@@ -32,6 +41,8 @@ public class Level {
         MattoneTile mattoneInstance;
         ScalaTile scalaInstance;
         NullTile nullInstance;
+        PortaTile portaInstance;
+        CassaTile cassaInstance;
         String riga = "";
 
         for (int r = 0; r < TILES_4_COLUMN; r++) {
@@ -47,6 +58,15 @@ public class Level {
                 } else if (tilesMatrix[r][c] instanceof NullTile) {
                     nullInstance = (NullTile) tilesMatrix[r][c];
                     row.add(nullInstance);
+                }else if (tilesMatrix[r][c] instanceof PortaTile) {
+                    portaInstance = (PortaTile) tilesMatrix[r][c];
+                    porta = portaInstance;
+                    row.add(portaInstance);
+                }else if (tilesMatrix[r][c] instanceof CassaTile) {
+                    cassaInstance = (CassaTile) tilesMatrix[r][c];
+                    row.add(cassaInstance);
+                    casse.add(cassaInstance);
+                    numCasse++;
                 }
             }
             tiles.add(row);
@@ -70,15 +90,6 @@ public class Level {
 
     }
 
-//    public float[] getMattonePositionsFlat() {
-//        List<MattoneTile> mattoni = getMattoni();
-//        float[] arr = new float[mattoni.size() * 2];
-//        for (int i = 0; i < mattoni.size(); i++) {
-//            arr[i * 2] = mattoni.get(i).getX();
-//            arr[i * 2 + 1] = mattoni.get(i).getY();
-//        }
-//        return arr;
-//    }
 
     public DataUtil[] getMattonePositionsFlat(){
         List<MattoneTile> mattoni = getMattoni();
@@ -116,6 +127,15 @@ public class Level {
         return arr;
     }
 
+    public float[] getCassaPositionsFlat() {
+        float[] arr = new float[casse.size() * 2];
+        for (int i = 0; i < casse.size(); i++) {
+            arr[i * 2] = casse.get(i).getX();
+            arr[i * 2 + 1] = casse.get(i).getY();
+        }
+        return arr;
+    }
+
     public DataUtil[] getNemiciPositionsFlat(){
         DataUtil[] result = new DataUtil[nemici.size()];
         Nemico nem;
@@ -126,8 +146,34 @@ public class Level {
         return result;
     }
 
+    public PortaTile getPorta(){
+        return porta;
+    }
+
+    public List<CassaTile> getCasse(){ return casse; }
+
+    public int getNumCasse(){ return numCasse; }
+    public void removeCassa(CassaTile cassa){
+        casse.remove(cassa);
+
+        //sostituisco con NullTile...
+        getRow(cassa.getY())
+                .set(cassa.getX()/TILE_SIZE, new NullTile(cassa.getX(), cassa.getY(), cassa.getW(), cassa.getH()));
+    }
+    public void addCassa(CassaTile cassa){
+        casse.add(cassa);
+
+        //sostituisco con CassaTile...
+        getRow(cassa.getY())
+                .set(cassa.getX()/TILE_SIZE, new CassaTile(cassa.getX(), cassa.getY(), cassa.getW(), cassa.getH()));
+    }
+
     public List<Tile> getRow(int y) {
-        return tiles.get(y / TILE_SIZE);
+        y=y/TILE_SIZE;
+        if(y>=TILES_4_COLUMN) {
+            y=TILES_4_COLUMN-1;
+        }
+        return tiles.get(y);
     }
 
     public List<Tile> getColumn(int x) {
@@ -147,11 +193,25 @@ public class Level {
      */
     public List<Tile> getArea(int y, int x) {
         List<Tile> area = new ArrayList<>();
-        area.add(tiles.get(y / TILE_SIZE).get(x / TILE_SIZE));
-        area.add(tiles.get(y / TILE_SIZE).get((x + TILE_SIZE) / TILE_SIZE));
-        area.add(tiles.get(((y + TILE_SIZE) / TILE_SIZE)).get(x / TILE_SIZE));
-        area.add(tiles.get(((y + TILE_SIZE) / TILE_SIZE)).get((x + TILE_SIZE) / TILE_SIZE));
+
+        //prima tile
+        area.add(getTileArea(y / TILE_SIZE, x / TILE_SIZE));
+        //seconda tile
+        area.add(getTileArea(y / TILE_SIZE, (x + TILE_SIZE) / TILE_SIZE));
+        //terza tile
+        area.add(getTileArea(((y + TILE_SIZE) / TILE_SIZE), x / TILE_SIZE));
+        //quarta tile
+        area.add(getTileArea(((y + TILE_SIZE) / TILE_SIZE), (x + TILE_SIZE) / TILE_SIZE));
+
         return area;
+    }
+
+    private Tile getTileArea(int y, int x){
+        if(y>=TILES_4_COLUMN || x>=TILES_4_ROW){
+            return new NullTile(x, y, TILE_SIZE, TILE_SIZE);
+        }else {
+            return tiles.get(y).get(x);
+        }
     }
 
     public boolean isFreeArea(int y, int x) {
@@ -231,16 +291,23 @@ public class Level {
         return result;
     }
 
-    public MattoneTile getMattoneErasing(Integer id) {
-        return mattoniErasing.get(id);
-    }
-
     public MattoneTile addMattoneErasing(Integer id, MattoneTile mattone) {
         return mattoniErasing.put(id, mattone);
     }
 
-    public MattoneTile removeMattoneErasing(Integer id){
-        return mattoniErasing.remove(id);
+    public Nemico getNemiciDown(int y, int x){
+        AtomicReference<Nemico> result = new AtomicReference<>();
+        result.set(null);
+        nemici.forEach(n -> {
+            if(Math.abs((n.getY()-(y+TILE_SIZE)))<TOLERANCE
+                    && ((Math.abs(n.getX()-x)<TOLERANCE) || (Math.abs(n.getX()+TILE_SIZE-x)<TOLERANCE))
+                    //Math.abs((x-TILE_SIZE/2)-n.getX()-(TILE_SIZE/2))<TOLERANCE
+            ){
+                result.set(n);
+            }
+        });
+
+        return result.get();
     }
 
     public List<Nemico> getNemici() {
@@ -248,4 +315,5 @@ public class Level {
     }
 
 
+    public Context getContext() { return context; }
 }

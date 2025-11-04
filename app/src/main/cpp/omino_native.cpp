@@ -88,18 +88,24 @@ struct Scala {
     Vec2 pos;
     std::string textureKey;
 };
-/*
-struct Mattone {
+
+struct Porta {
     Vec2 pos;
     std::string textureKey;
 };
-*/
+
+struct Cassa {
+    Vec2 pos;
+    std::string textureKey;
+};
 
 static Entity omino;
 static std::unordered_map<int, Entity> nemici;
-//static std::vector<Mattone> mattoni;
+//static std::vector<Entity> nemici;
 static std::unordered_map<int, Entity> mattoni;
 static std::vector<Scala> scale;
+static Porta porta;
+static std::vector<Cassa> casse;
 
 // Gestione textures
 static std::map<std::string, Texture> textures;
@@ -234,6 +240,91 @@ static void changeFrameSet(int maxIdx, Entity& entity) {
    }
 }
 
+static void disegnaOmino(){
+    std::string key = "";
+    if(omino.currentAn == "omino_run_dx"
+        || omino.currentAn == "omino_run_sx" ){
+       changeFrameSet(3, omino);
+       key = omino.currentAn + "_" + std::to_string(omino.currentFrame);
+    }else if(omino.currentAn == "omino_run_up"
+        || omino.currentAn == "omino_run_down" ){
+           changeFrameSet(2, omino);
+           key = omino.currentAn + "_" + std::to_string(omino.currentFrame);
+    }else { //omino_idle_dx; omino_idle_sx; omino_falling;
+           key = omino.currentAn;
+    }
+
+    // Disegna il frame corrente dell'animazione
+    drawQuad(textures[key], omino.pos.x, omino.pos.y);
+}
+
+static void disegnaNemici(){
+std::string key = "";
+for (auto& pair : nemici) {
+        int id = pair.first;          // La chiave (id del nemico)
+        Entity& n = pair.second; // L'oggetto Entity
+
+            if(n.currentAn == "nemico_run_dx"
+                    || n.currentAn == "nemico_run_sx" ){
+                    changeFrameSet(3, n);
+                    key = n.currentAn + "_" + std::to_string(n.currentFrame);
+            }else if(n.currentAn == "nemico_run_up"
+                    || n.currentAn == "nemico_run_down" ){
+                    changeFrameSet(2, n);
+                    key = n.currentAn + "_" + std::to_string(n.currentFrame);
+            }else {
+                    key = n.currentAn;
+            }
+            //__android_log_print(ANDROID_LOG_ERROR, "disegna nemico", "texture: %s", key.c_str());
+            drawQuad(textures[key], n.pos.x, n.pos.y);
+    }
+}
+
+static void disegnaScale(){
+    for (auto& s : scale)
+            drawQuad(textures["scala"], s.pos.x, s.pos.y);
+}
+
+static void disegnaMattoni(){
+    std::string key = "";
+
+    for (auto& pair : mattoni) {
+            int id = pair.first;          // La chiave (id del nemico)
+            Entity& m = pair.second; // L'oggetto Entity
+
+            if(m.currentAn == "mattone_erasing_dx" || m.currentAn == "mattone_erasing_sx" ){
+               changeFrameSet(7, m);
+               key = m.currentAn + "_" + std::to_string(m.currentFrame);
+               if(m.currentFrame==6){
+                    m.currentFrame=5;
+               }
+
+               if(m.currentFrame<=4){
+              // __android_log_print(ANDROID_LOG_ERROR, "mattone", "texture: %s %f %f", key.c_str(), m.pos.x, (m.pos.y-64));
+                drawQuad(textures[key], m.pos.x, (m.pos.y-64));
+
+              //  __android_log_print(ANDROID_LOG_ERROR, "mattone", "texture: mattone %f %f", m.pos.x, m.pos.y);
+                drawQuad(textures["mattone"], m.pos.x, m.pos.y);
+               }
+
+            }else {
+               key = m.currentAn;
+               m.currentFrame=1;
+               drawQuad(textures[key], m.pos.x, m.pos.y);
+            }
+    }
+}
+
+static void disegnaPorta(){
+    drawQuad(textures[porta.textureKey], porta.pos.x, porta.pos.y);
+}
+
+static void disegnaCasse(){
+    for (auto& c : casse){
+            drawQuad(textures["cassa"], c.pos.x, c.pos.y);
+        }
+}
+
 // -----------------------------
 // JNI
 // -----------------------------
@@ -272,24 +363,25 @@ Java_com_game_omino_render_GameRenderer_nativeInit(JNIEnv* env, jclass, jobject 
     textures["nemico_run_down_2"] = loadTextureFromAsset("sprites/nemico_up_1.png");
 
     textures["mattone"]    = loadTextureFromAsset("tiles/mattone.png");
-    textures["mattone_erasing_1"]    = loadTextureFromAsset("tiles/mattone_erasing_1.png");
-    textures["mattone_erasing_2"]    = loadTextureFromAsset("tiles/mattone_erasing_2.png");
-    textures["mattone_erasing_3"]    = loadTextureFromAsset("tiles/mattone_erasing_3.png");
-    textures["mattone_erasing_4"]    = loadTextureFromAsset("tiles/mattone_erasing_4.png");
-    textures["mattone_erasing_5"]    = loadTextureFromAsset("tiles/mattone_erasing_5.png");
-    textures["mattone_erasing_6"]    = loadTextureFromAsset("tiles/mattone_erasing_6.png");
-    textures["mattone_erasing_7"]    = loadTextureFromAsset("tiles/mattone_erasing_7.png");
-    textures["mattone_erasing_8"]    = loadTextureFromAsset("tiles/mattone_erasing_8.png");
-    textures["mattone_erasing_9"]    = loadTextureFromAsset("tiles/mattone_erasing_9.png");
-    textures["mattone_erasing_10"]    = loadTextureFromAsset("tiles/mattone_erasing_10.png");
-    textures["mattone_erasing_11"]    = loadTextureFromAsset("tiles/mattone_erasing_11.png");
-    textures["mattone_erasing_12"]    = loadTextureFromAsset("tiles/mattone_erasing_12.png");
-    textures["mattone_erasing_13"]    = loadTextureFromAsset("tiles/mattone_erasing_13.png");
-    textures["mattone_erasing_14"]    = loadTextureFromAsset("tiles/mattone_erasing_14.png");
-    textures["mattone_erasing_15"]    = loadTextureFromAsset("tiles/mattone_erasing_15.png");
-    textures["mattone_erasing_16"]    = loadTextureFromAsset("tiles/mattone_erasing_16.png");
+
+    textures["mattone_erasing_dx_1"] = loadTextureFromAsset("tiles/mattone_erasing_dx_1.png");
+    textures["mattone_erasing_dx_2"] = loadTextureFromAsset("tiles/mattone_erasing_dx_2.png");
+    textures["mattone_erasing_dx_3"] = loadTextureFromAsset("tiles/mattone_erasing_dx_3.png");
+    textures["mattone_erasing_dx_4"] = loadTextureFromAsset("tiles/mattone_erasing_dx_4.png");
+
+    textures["mattone_erasing_sx_1"] = loadTextureFromAsset("tiles/mattone_erasing_sx_1.png");
+    textures["mattone_erasing_sx_2"] = loadTextureFromAsset("tiles/mattone_erasing_sx_2.png");
+    textures["mattone_erasing_sx_3"] = loadTextureFromAsset("tiles/mattone_erasing_sx_3.png");
+    textures["mattone_erasing_sx_4"] = loadTextureFromAsset("tiles/mattone_erasing_sx_4.png");
+
+    textures["cassa"]    = loadTextureFromAsset("tiles/cassa.png");
+
+    textures["porta_chiusa"]    = loadTextureFromAsset("tiles/porta_chiusa.png");
+    textures["porta_aperta"]    = loadTextureFromAsset("tiles/porta_aperta.png");
 
     textures["scala"]      = loadTextureFromAsset("tiles/scala.png");
+
+    textures["void_texture"]    = loadTextureFromAsset("tiles/void_texture.png");
 
     //init Omino
     omino = { {0.0f, 0.0f}, "omino_idle_dx", 1, 0.0f, 0.1f };
@@ -455,66 +547,44 @@ Java_com_game_omino_render_GameRenderer_nativeSetScalaPositions(JNIEnv* env, jcl
 
 
 extern "C" JNIEXPORT void JNICALL
+Java_com_game_omino_render_GameRenderer_nativeSetCassaPositions(JNIEnv* env, jclass, jfloatArray arr) {
+    jsize len = env->GetArrayLength(arr);
+    jfloat* data = env->GetFloatArrayElements(arr, nullptr);
+    casse.clear();
+    for (int i = 0; i < len; i += 2) {
+        casse.push_back({data[i], data[i+1]});
+    }
+    env->ReleaseFloatArrayElements(arr, data, 0);
+}
+
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_game_omino_render_GameRenderer_nativeSetPortaPositionsAndAnimation(JNIEnv* env, jclass, jfloat x, jfloat y, jstring currentAnimation) {
+       const char* chars = env->GetStringUTFChars(currentAnimation, nullptr);
+
+       porta.pos.x = x;
+       porta.pos.y = y;
+       porta.textureKey = std::string(chars);
+
+       env->ReleaseStringUTFChars(currentAnimation, chars); // Rilascia la memoria
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_game_omino_render_GameRenderer_nativeClearPorta(JNIEnv* env, jclass){
+    porta.textureKey = "void_texture";
+}
+
+
+extern "C" JNIEXPORT void JNICALL
 Java_com_game_omino_render_GameRenderer_nativeRender(JNIEnv* env, jclass) {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    //disegna scale...
-    for (auto& s : scale)
-        drawQuad(textures["scala"], s.pos.x, s.pos.y);
-
-    //disegna mattoni...
-    std::string key = "";
-    for (auto& pair : mattoni) {
-            int id = pair.first;          // La chiave (id del nemico)
-            Entity& m = pair.second; // L'oggetto Entity
-
-                if(m.currentAn == "mattone_erasing" ){
-                        changeFrameSet(16, m);
-                        key = m.currentAn + "_" + std::to_string(m.currentFrame);
-                }else {
-                        key = m.currentAn;
-                }
-                //__android_log_print(ANDROID_LOG_ERROR, "mattone", "texture: %s %f %f", key.c_str(), m.pos.y, m.pos.x);
-                drawQuad(textures[key], m.pos.x, m.pos.y);
-            }
-
-
-
-    //disegna omino...
-    if(omino.currentAn == "omino_run_dx"
-        || omino.currentAn == "omino_run_sx" ){
-        changeFrameSet(3, omino);
-        key = omino.currentAn + "_" + std::to_string(omino.currentFrame);
-    }else if(omino.currentAn == "omino_run_up"
-        || omino.currentAn == "omino_run_down" ){
-            changeFrameSet(2, omino);
-            key = omino.currentAn + "_" + std::to_string(omino.currentFrame);
-    }else { //omino_idle_dx; omino_idle_sx; omino_falling;
-            key = omino.currentAn;
-    }
-
-    // Disegna il frame corrente dell'animazione
-    drawQuad(textures[key], omino.pos.x, omino.pos.y);
-
-
-    for (auto& pair : nemici) {
-        int id = pair.first;          // La chiave (id del nemico)
-        Entity& n = pair.second; // L'oggetto Entity
-
-            if(n.currentAn == "nemico_run_dx"
-                    || n.currentAn == "nemico_run_sx" ){
-                    changeFrameSet(3, n);
-                    key = n.currentAn + "_" + std::to_string(n.currentFrame);
-            }else if(n.currentAn == "nemico_run_up"
-                    || n.currentAn == "nemico_run_down" ){
-                    changeFrameSet(2, n);
-                    key = n.currentAn + "_" + std::to_string(n.currentFrame);
-            }else {
-                    key = n.currentAn;
-            }
-
-            drawQuad(textures[key], n.pos.x, n.pos.y);
-        }
+    disegnaScale();
+    disegnaMattoni();
+    disegnaCasse();
+    disegnaPorta();
+    disegnaOmino();
+    disegnaNemici();
 
 }
 

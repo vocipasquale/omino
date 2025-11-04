@@ -7,6 +7,9 @@ import android.opengl.GLSurfaceView;
 import com.game.omino.engine.GameLoop;
 import com.game.omino.input.TouchInput;
 
+import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.opengles.GL10;
+
 import static com.game.omino.utils.Constants.SCREEN_HEIGHT;
 import static com.game.omino.utils.Constants.SCREEN_WIDTH;
 
@@ -47,6 +50,10 @@ public class GameSurfaceView extends GLSurfaceView {
 
     public void onPauseLoop() {
         onPause();
+    }
+
+    public void initScreen(){
+        gameRenderer.initScreen();
     }
 
 

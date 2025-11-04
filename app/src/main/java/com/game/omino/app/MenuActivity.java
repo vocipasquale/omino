@@ -19,10 +19,10 @@ public class MenuActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_menu);
 
-		findViewById(R.id.button_chiudi_menu).setOnClickListener(new View.OnClickListener() {
+		findViewById(R.id.button_indietro_menu).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Log.d("MainActivity", "Start button clicked!");
+				Log.d("MenuActivity", "Indietro button clicked!");
 				startActivity(new Intent(MenuActivity.this, MainActivity.class));
 			}
 		});

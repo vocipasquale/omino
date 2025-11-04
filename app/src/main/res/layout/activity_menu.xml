@@ -10,7 +10,7 @@
 
 
 	<com.google.android.material.button.MaterialButton
-			android:id="@+id/button_chiudi_menu"
+			android:id="@+id/button_indietro_menu"
 			style="@style/ButtonArcade"
 			android:layout_width="@dimen/arcade_button_width"
 			android:layout_height="@dimen/arcade_button_height"

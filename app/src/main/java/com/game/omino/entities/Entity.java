@@ -1,11 +1,18 @@
 package com.game.omino.entities;
 
 import com.game.omino.engine.GameWorld;
+import com.game.omino.scene.tiles.CassaTile;
 import com.game.omino.scene.tiles.NullTile;
 import com.game.omino.scene.tiles.ScalaTile;
 import com.game.omino.scene.tiles.Tile;
 
+import java.util.List;
+
+import static com.game.omino.utils.Constants.TOLERANCE;
+
 public abstract class Entity {
+    protected int xOrigin; //posizione X
+    protected int yOrigin; //posizione Y
     protected int x; //posizione X
     protected int y; //posizione Y
     protected int w; //larghezza
@@ -28,6 +35,8 @@ public abstract class Entity {
         this.y=y;
         this.w=w;
         this.h=h;
+        xOrigin = x;
+        yOrigin = y;
     }
 
     abstract void su();
@@ -121,8 +130,9 @@ public abstract class Entity {
         return currentAnimation;
     }
 
-    public void setCurrentAnimation(String currentAnimation) {
-        this.currentAnimation=currentAnimation;
+    public void reborn() {
+        x=xOrigin;
+        y=yOrigin;
     }
 
 }

@@ -1,27 +1,35 @@
 package com.game.omino.app;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 
 import android.os.Handler;
 import android.os.Looper;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.GridLayout;
+import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.game.omino.R;
+import com.game.omino.engine.GameEventListener;
 import com.game.omino.engine.GameWorld;
 import com.game.omino.levels.LevelManager;
 import com.game.omino.render.GameSurfaceView;
-import com.game.omino.scene.PlayScene;
-import com.game.omino.scene.SceneManager;
+//import com.game.omino.scene.PlayScene;
+//import com.game.omino.scene.SceneManager;
 
 import static com.game.omino.utils.Constants.REPEAT_DELAY_MS;
 
-public class OminoGameActivity extends AppCompatActivity {
+public class OminoGameActivity extends AppCompatActivity implements GameEventListener {
 
 	private GameSurfaceView gameView;
+	private GridLayout controlBar;
+	private TextView levelTxt, livesTxt, scoreTxt;
 
 	// Handler a livello di classe (main thread)
 	private final Handler handler = new Handler(Looper.getMainLooper());
@@ -33,14 +41,26 @@ public class OminoGameActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_ominogame);
 
 		gameView = findViewById(R.id.game_surface);
+		controlBar = findViewById(R.id.control_bar);
+		levelTxt = findViewById(R.id.level_txt);
+		livesTxt = findViewById(R.id.lives_txt);
+		scoreTxt = findViewById(R.id.score_txt);
+
+		gameView.setVisibility(View.VISIBLE);
+		controlBar.setVisibility(View.VISIBLE);
 
 		// scena iniziale
-		//al momento parte levelbase attraverso LevelManager
-        try {
-            SceneManager.setScene(new PlayScene(LevelManager.startLevel(getBaseContext())));
+		try {
+            //SceneManager.setScene(new PlayScene(LevelManager.getInstance(getBaseContext()).startNextLevel()));
+			GameWorld.getInstance().loadLevel(LevelManager.getInstance(getBaseContext()).startNextLevel());
+			updateLeveltxt();
+			updateLivestxt(GameWorld.getInstance().getOminoLives());
+			updateScoretxt(GameWorld.getInstance().getOminoScore());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+
+		GameWorld.getInstance().setGameEventListener(this);
 
         // usa makeMoveListener passando un Runnable (qui senza lambda per compatibilità)
 		findViewById(R.id.button_up).setOnTouchListener(
@@ -94,6 +114,18 @@ public class OminoGameActivity extends AppCompatActivity {
 			}
 		});
 
+	}
+
+	private void updateLivestxt(String s) {
+		livesTxt.setText("lives "+ s);
+	}
+
+	private void updateLeveltxt() {
+		levelTxt.setText("level "+ LevelManager.getInstance(getBaseContext()).getCurrentLevelNum());
+	}
+
+	private void updateScoretxt(String ominoScore) {
+		scoreTxt.setText(ominoScore);
 	}
 
 	/**
@@ -157,28 +189,6 @@ public class OminoGameActivity extends AppCompatActivity {
 	}
 
 
-//	private View.OnTouchListener makeFireListener() {
-//		return new View.OnTouchListener() {
-//			@Override
-//			public boolean onTouch(View v, MotionEvent event) {
-//				switch (event.getAction()) {
-//					case MotionEvent.ACTION_DOWN:
-//						// Chiama fire() solo al click
-//						GameWorld.getInstance().getOmino().fire();
-//						v.setPressed(true);
-//						return true;
-//
-//					case MotionEvent.ACTION_UP:
-//					case MotionEvent.ACTION_CANCEL:
-//						v.setPressed(false);
-//						return true;
-//				}
-//				return false;
-//			}
-//		};
-//	}
-
-
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -194,4 +204,92 @@ public class OminoGameActivity extends AppCompatActivity {
 		}
 		super.onPause();
 	}
+
+	@Override
+	public void onGameOver() {
+		LevelManager.getInstance(getBaseContext()).reset();
+		GameWorld.getInstance().reset();
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				// Trova il FrameLayout e il pulsante di continuazione
+				FrameLayout gameOverlay = findViewById(R.id.game_overlay);
+				Button gameOverButton = findViewById(R.id.gameover_button);
+
+				// Mostra l'overlay
+				gameOverlay.setVisibility(View.VISIBLE);
+				gameOverButton.setVisibility(View.VISIBLE);
+
+				gameView.setVisibility(View.INVISIBLE);
+				controlBar.setVisibility(View.INVISIBLE);
+
+				updateLivestxt(GameWorld.getInstance().getOminoLives());
+				updateLeveltxt();
+				updateScoretxt(GameWorld.getInstance().getOminoScore());
+
+				// Imposta il listener per il pulsante di continuazione
+				gameOverButton.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						startActivity(new Intent(OminoGameActivity.this, MainActivity.class));
+					}
+				});
+			}
+		});
+	}
+
+
+
+	@Override
+	public void onLiveUpdate(String s) {
+		updateLivestxt(s);
+	}
+
+	@Override
+	public void onLevelPassed() {
+		try {
+			GameWorld.getInstance().loadLevel(LevelManager.getInstance(getBaseContext()).startNextLevel());
+			gameView.initScreen();
+			updateLeveltxt();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public void onScoreUpdate(String score) {
+		updateScoretxt(score);
+	}
+
+	@Override
+	public void onGameFinished() {
+		LevelManager.getInstance(getBaseContext()).reset();
+
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				// Trova il FrameLayout e il pulsante di continuazione
+				FrameLayout gameOverlay = findViewById(R.id.game_overlay);
+				Button gameFinishButton = findViewById(R.id.gamefinish_button);
+
+				gameView.setVisibility(View.INVISIBLE);
+				controlBar.setVisibility(View.INVISIBLE);
+
+				// Mostra l'overlay
+				gameOverlay.setVisibility(View.VISIBLE);
+				gameFinishButton.setVisibility(View.VISIBLE);
+
+				// Imposta il listener per il pulsante di continuazione
+				gameFinishButton.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						startActivity(new Intent(OminoGameActivity.this, MainActivity.class));
+					}
+				});
+			}
+		});
+	}
+
+
+
 }

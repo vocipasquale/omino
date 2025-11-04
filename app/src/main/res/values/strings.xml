@@ -3,4 +3,7 @@
     <string name="start">Start</string>
     <string name="menu">Menu</string>
     <string name="indietro">Indietro</string>
+    <string name="game_over">Game Over</string>
+    <string name="game_finish">!!! Game Finish !!!</string>
+    <string name="continua">Continua</string>
 </resources>

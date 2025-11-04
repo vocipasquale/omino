@@ -2,11 +2,9 @@ package com.game.omino.entities;
 
 import android.util.Log;
 import com.game.omino.engine.GameWorld;
-import com.game.omino.scene.tiles.MattoneTile;
-import com.game.omino.scene.tiles.NullTile;
-import com.game.omino.scene.tiles.ScalaTile;
-import com.game.omino.scene.tiles.Tile;
+import com.game.omino.scene.tiles.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.game.omino.utils.Constants.STEP;
@@ -22,6 +20,8 @@ public class Omino extends Entity {
     private static final String RUN_UP_TX = "omino_run_up";
     private static final String RUN_DOWN_TX = "omino_run_down";
     private static final String FALLING_TX = "omino_falling";
+
+    private List<CassaTile> casse = new ArrayList<>();
 
 
 
@@ -127,6 +127,14 @@ public class Omino extends Entity {
     public void fire(boolean dx){
        // Log.d("Omino", "fireeeeeeeeeeeeeeeeeeeeeee");
        GameWorld.getInstance().cancelTile(dx);
+    }
+
+    public int numCasse(){
+        return casse.size();
+    }
+
+    public void addCassa(CassaTile cassa){
+        casse.add(cassa);
     }
 
 }
